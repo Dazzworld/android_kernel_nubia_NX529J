@@ -248,12 +248,27 @@ static int wcd_event_notify(struct notifier_block *self, unsigned long val,
 	struct msm8x16_wcd_priv *msm8x16_wcd = snd_soc_codec_get_drvdata(codec);
 	struct wcd_mbhc *mbhc = &msm8x16_wcd->mbhc;
 	enum wcd_notify_event event = (enum wcd_notify_event)val;
+<<<<<<< HEAD
 	bool micbias2;
 	bool micbias1;
 
 	pr_debug("%s: event %d\n", __func__, event);
 	micbias2 = (snd_soc_read(codec, MSM8X16_WCD_A_ANALOG_MICB_2_EN) & 0x80);
 	micbias1 = (snd_soc_read(codec, MSM8X16_WCD_A_ANALOG_MICB_1_EN) & 0x80);
+=======
+	struct snd_soc_codec *codec = mbhc->codec;
+	bool micbias2 = false;
+	bool micbias1 = false;
+
+	pr_debug("%s: event %s (%d)\n", __func__,
+		 wcd_mbhc_get_event_string(event), event);
+	if (mbhc->mbhc_cb->micbias_enable_status) {
+		micbias2 = mbhc->mbhc_cb->micbias_enable_status(mbhc,
+								MIC_BIAS_2);
+		micbias1 = mbhc->mbhc_cb->micbias_enable_status(mbhc,
+								MIC_BIAS_1);
+	}
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 	switch (event) {
 	/* MICBIAS usage change */
 	case WCD_EVENT_PRE_MICBIAS_2_ON:
@@ -276,12 +291,24 @@ static int wcd_event_notify(struct notifier_block *self, unsigned long val,
 					0x60, 0x00);
 		}
 		/* Disable current source if micbias enabled */
+<<<<<<< HEAD
 		wcd_enable_curr_micbias(mbhc, WCD_MBHC_EN_MB);
 		mbhc->is_hs_recording = true;
+=======
+		if (!mbhc->mbhc_cb->mbhc_micbias_control) {
+			mbhc->is_hs_recording = true;
+			wcd_enable_curr_micbias(mbhc, WCD_MBHC_EN_MB);
+		}
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 		/* configure cap settings properly when micbias is enabled */
 		if (mbhc->mbhc_cb && mbhc->mbhc_cb->set_cap_mode)
 			mbhc->mbhc_cb->set_cap_mode(codec, micbias1, true);
 		break;
+<<<<<<< HEAD
+=======
+	case WCD_EVENT_PRE_MICBIAS_2_OFF:
+		break;
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 	/* MICBIAS usage change */
 	case WCD_EVENT_PRE_MICBIAS_2_OFF:
 		if (mbhc->mbhc_cb && mbhc->mbhc_cb->set_auto_zeroing)
@@ -908,9 +935,16 @@ static void wcd_mbhc_find_plug_and_report(struct wcd_mbhc *mbhc,
 				 __func__);
 
 			/* Disable HW FSM and current source */
+<<<<<<< HEAD
 			snd_soc_update_bits(codec,
 					MSM8X16_WCD_A_ANALOG_MBHC_FSM_CTL,
 					0xB0, 0x0);
+=======
+			WCD_MBHC_REG_UPDATE_BITS(WCD_MBHC_FSM_EN, 0);
+			WCD_MBHC_REG_UPDATE_BITS(WCD_MBHC_BTN_ISRC_CTL, 0);
+			mbhc->mbhc_cb->mbhc_micbias_control(mbhc->codec,
+				MICB_PULLUP_DISABLE);
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 			/* Setup for insertion detection */
 			snd_soc_update_bits(codec,
 					MSM8X16_WCD_A_ANALOG_MBHC_DET_CTL_1,
@@ -1038,6 +1072,28 @@ static bool wcd_is_special_headset(struct wcd_mbhc *mbhc)
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static void wcd_mbhc_update_fsm_source(struct wcd_mbhc *mbhc,
+				       enum wcd_mbhc_plug_type plug_type)
+{
+	switch (plug_type) {
+	case MBHC_PLUG_TYPE_HEADPHONE:
+		WCD_MBHC_REG_UPDATE_BITS(WCD_MBHC_BTN_ISRC_CTL, 3);
+		break;
+	case MBHC_PLUG_TYPE_HEADSET:
+		WCD_MBHC_REG_UPDATE_BITS(WCD_MBHC_BTN_ISRC_CTL, 0);
+		mbhc->mbhc_cb->mbhc_micbias_control(mbhc->codec,
+			MICB_PULLUP_ENABLE);
+		break;
+	default:
+		WCD_MBHC_REG_UPDATE_BITS(WCD_MBHC_BTN_ISRC_CTL, 0);
+		break;
+
+	};
+}
+
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 static void wcd_enable_mbhc_supply(struct wcd_mbhc *mbhc,
 			enum wcd_mbhc_plug_type plug_type)
 {
@@ -1436,6 +1492,7 @@ static void wcd_mbhc_swch_irq_handler(struct wcd_mbhc *mbhc)
 		if (mbhc->mbhc_cb && mbhc->mbhc_cb->enable_mb_source)
 			mbhc->mbhc_cb->enable_mb_source(codec, false);
 		/* Disable HW FSM */
+<<<<<<< HEAD
 		snd_soc_update_bits(codec,
 				MSM8X16_WCD_A_ANALOG_MBHC_FSM_CTL,
 				0xB0, 0x00);
@@ -1443,6 +1500,17 @@ static void wcd_mbhc_swch_irq_handler(struct wcd_mbhc *mbhc)
 				MSM8X16_WCD_A_ANALOG_MICB_1_EN,
 				0x04, 0x00);
 		if (mbhc->mbhc_cb && mbhc->mbhc_cb->set_cap_mode)
+=======
+		WCD_MBHC_REG_UPDATE_BITS(WCD_MBHC_FSM_EN, 0);
+		WCD_MBHC_REG_UPDATE_BITS(WCD_MBHC_BTN_ISRC_CTL, 0);
+		mbhc->mbhc_cb->mbhc_micbias_control(mbhc->codec,
+			MICB_PULLUP_DISABLE);
+		if (mbhc->mbhc_cb->mbhc_common_micb_ctrl)
+			mbhc->mbhc_cb->mbhc_common_micb_ctrl(codec,
+					MBHC_COMMON_MICB_TAIL_CURR, false);
+
+		if (mbhc->mbhc_cb->set_cap_mode)
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 			mbhc->mbhc_cb->set_cap_mode(codec, micbias1, false);
 		mbhc->btn_press_intr = false;
 		if (mbhc->current_plug == MBHC_PLUG_TYPE_HEADPHONE) {
@@ -1977,12 +2045,40 @@ static int wcd_mbhc_initialise(struct wcd_mbhc *mbhc)
 			0x80, 0x80);
 	snd_soc_write(codec, MSM8X16_WCD_A_ANALOG_MBHC_DET_CTL_1, 0xB5);
 	/* enable HS detection */
+<<<<<<< HEAD
 	snd_soc_write(codec, MSM8X16_WCD_A_ANALOG_MBHC_DET_CTL_2, 0xE8);
 	snd_soc_update_bits(codec, MSM8X16_WCD_A_ANALOG_MBHC_DET_CTL_2, 0x18,
 				(mbhc->hphl_swh << 4 | mbhc->gnd_swh << 3));
 
 	snd_soc_update_bits(codec, MSM8X16_WCD_A_ANALOG_MBHC_DET_CTL_2,
 			0x01, 0x01);
+=======
+	if (mbhc->mbhc_cb->hph_pull_up_control)
+		mbhc->mbhc_cb->hph_pull_up_control(codec, I_DEFAULT);
+	else
+		WCD_MBHC_REG_UPDATE_BITS(WCD_MBHC_HS_L_DET_PULL_UP_CTRL, 3);
+
+	wcd_mbhc_moisture_config(mbhc);
+
+	WCD_MBHC_REG_UPDATE_BITS(WCD_MBHC_HPHL_PLUG_TYPE, mbhc->hphl_swh);
+	WCD_MBHC_REG_UPDATE_BITS(WCD_MBHC_GND_PLUG_TYPE, mbhc->gnd_swh);
+	WCD_MBHC_REG_UPDATE_BITS(WCD_MBHC_SW_HPH_LP_100K_TO_GND, 1);
+	if (mbhc->mbhc_cfg->gnd_det_en && mbhc->mbhc_cb->mbhc_gnd_det_ctrl)
+		mbhc->mbhc_cb->mbhc_gnd_det_ctrl(codec, true);
+	WCD_MBHC_REG_UPDATE_BITS(WCD_MBHC_HS_L_DET_PULL_UP_COMP_CTRL, 1);
+	WCD_MBHC_REG_UPDATE_BITS(WCD_MBHC_L_DET_EN, 1);
+
+	/* Insertion debounce set to 256ms */
+	WCD_MBHC_REG_UPDATE_BITS(WCD_MBHC_INSREM_DBNC, 9);
+	/* Button Debounce set to 16ms */
+	WCD_MBHC_REG_UPDATE_BITS(WCD_MBHC_BTN_DBNC, 2);
+
+	/* enable bias */
+	mbhc->mbhc_cb->mbhc_bias(codec, true);
+	/* enable MBHC clock */
+	if (mbhc->mbhc_cb->clk_setup)
+		mbhc->mbhc_cb->clk_setup(codec, true);
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 
 	snd_soc_write(codec, MSM8X16_WCD_A_ANALOG_MBHC_DBNC_TIMER, 0x98);
 

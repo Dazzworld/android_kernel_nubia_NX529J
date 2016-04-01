@@ -9,6 +9,7 @@ wm97xx-ts-y := wm97xx-core.o
 obj-$(CONFIG_TOUCHSCREEN_88PM860X)	+= 88pm860x-ts.o
 obj-$(CONFIG_TOUCHSCREEN_AD7877)	+= ad7877.o
 obj-$(CONFIG_TOUCHSCREEN_AD7879)	+= ad7879.o
+obj-$(CONFIG_TOUCHSCREEN_ATMEL_MXTS)	+= atmel/
 obj-$(CONFIG_TOUCHSCREEN_AD7879_I2C)	+= ad7879-i2c.o
 obj-$(CONFIG_TOUCHSCREEN_AD7879_SPI)	+= ad7879-spi.o
 obj-$(CONFIG_TOUCHSCREEN_ADS7846)	+= ads7846.o
@@ -75,14 +76,24 @@ obj-$(CONFIG_TOUCHSCREEN_WM97XX_ZYLONITE)	+= zylonite-wm97xx.o
 obj-$(CONFIG_TOUCHSCREEN_W90X900)	+= w90p910_ts.o
 obj-$(CONFIG_TOUCHSCREEN_TPS6507X)	+= tps6507x-ts.o
 obj-$(CONFIG_TOUCHSCREEN_FT5X06)	+= ft5x06_ts.o
+obj-$(CONFIG_TOUCHSCREEN_FT5X06)  += focal_mcap_test_lib.a
 obj-$(CONFIG_TOUCHSCREEN_MSTAR21XX)	+= msg21xx_ts.o
 obj-$(CONFIG_TOUCHSCREEN_GT9XX)		+= gt9xx/
 obj-$(CONFIG_TOUCHSCREEN_BU21150)	+= bu21150.o
 obj-$(CONFIG_INPUT_MT_WRAPPER)		+= input_mt_wrapper.o
 obj-$(CONFIG_TOUCHSCREEN_IT7260_I2C)	+= it7258_ts_i2c.o
+<<<<<<< HEAD
 #ztemt ningyaodong modify for touchscreen begin
 obj-$(CONFIG_TOUCHSCREEN_SYNAPTICS_DSX) += synaptics_dsx/
 obj-$(CONFIG_TOUCHSCREEN_CYPRESS_CYTTSP) += cyttsp/
 obj-$(CONFIG_ZTEMT_TOUCHSCREEN_GT1X) += gt1x/
 obj-$(CONFIG_TOUCHSCREEN_CYPRESS_TMA568)        += cyttsp5/
 #ztemt ningyaodong modify for touchscreen end
+=======
+
+obj-y	+= lct_tp_fm_info.o
+obj-y	+= lct_ctp_selftest.o
+obj-y	+= lct_ctp_upgrade.o
+obj-y	+= lct_if_ctp_upgrade.o
+obj-$(CONFIG_TOUCHSCREEN_GESTURE)	+= lct_ctp_gesture.o
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3

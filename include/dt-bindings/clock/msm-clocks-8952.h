@@ -303,5 +303,13 @@
 #define clk_a53ssmux_lc				0x71a9377b
 #define clk_a53ssmux_bc				0xb5983c42
 #define clk_a53ssmux_cci			0x15560bd5
+<<<<<<< HEAD
+=======
+#define clk_cci_clk                             0x96854074
+
+#define clk_audio_ap_clk 0x312ac429
+#define clk_audio_pmi_clk 0xb7ba2274
+#define clk_audio_ap_clk1			0x322ac429
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 
 #endif

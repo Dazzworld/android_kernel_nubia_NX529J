@@ -89,3 +89,9 @@ obj-$(CONFIG_MSM_RTB) += msm_rtb-hotplug.o
 obj-$(CONFIG_QCOM_EARLY_RANDOM)	+= early_random.o
 obj-$(CONFIG_MSM_PACMAN)        += msm_pacman.o
 obj-$(CONFIG_MSM_TEST_PACMAN)        += msm_test_pacman.o
+<<<<<<< HEAD
+=======
+obj-$(CONFIG_TRACER_PKT) += tracer_pkt.o
+obj-$(CONFIG_MSM_VSENS) += vsens.o
+obj-$(CONFIG_SERIAL_NUM) += serial_num.o
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3

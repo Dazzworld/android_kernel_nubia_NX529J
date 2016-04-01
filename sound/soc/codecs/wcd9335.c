@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2015, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2015-2016, The Linux Foundation. All rights reserved.
+ * Copyright (C) 2016 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -75,6 +76,91 @@
 #define TASHA_NUM_INTERPOLATORS 9
 #define BYTE_BIT_MASK(nr) (1 << ((nr) % BITS_PER_BYTE))
 #define TASHA_MAD_AUDIO_FIRMWARE_PATH "wcd9335/wcd9335_mad_audio.bin"
+<<<<<<< HEAD
+=======
+#define TASHA_CPE_SS_ERR_STATUS_MEM_ACCESS (1 << 0)
+#define TASHA_CPE_SS_ERR_STATUS_WDOG_BITE (1 << 1)
+
+#define TASHA_CPE_FATAL_IRQS \
+	(TASHA_CPE_SS_ERR_STATUS_WDOG_BITE | \
+	 TASHA_CPE_SS_ERR_STATUS_MEM_ACCESS)
+
+#define SLIM_BW_CLK_GEAR_9 6200000
+#define SLIM_BW_UNVOTE 0
+
+#define CPE_FLL_CLK_75MHZ 75000000
+#define CPE_FLL_CLK_150MHZ 150000000
+#define WCD9335_REG_BITS 8
+
+#define WCD9335_MAX_VALID_ADC_MUX  13
+#define WCD9335_INVALID_ADC_MUX 9
+
+#define TASHA_DIG_CORE_REG_MIN  WCD9335_CDC_ANC0_CLK_RESET_CTL
+#define TASHA_DIG_CORE_REG_MAX  0xDFF
+
+/* Convert from vout ctl to micbias voltage in mV */
+#define WCD_VOUT_CTL_TO_MICB(v) (1000 + v * 50)
+
+#define TASHA_ZDET_NUM_MEASUREMENTS 150
+#define TASHA_MBHC_GET_C1(c)  ((c & 0xC000) >> 14)
+#define TASHA_MBHC_GET_X1(x)  (x & 0x3FFF)
+/* z value compared in milliOhm */
+#define TASHA_MBHC_IS_SECOND_RAMP_REQUIRED(z) ((z > 400000) || (z < 32000))
+#define TASHA_MBHC_ZDET_CONST  (86 * 16384)
+
+#define TASHA_VERSION_ENTRY_SIZE 17
+
+#define WCD9335_AMIC_PWR_LEVEL_LP 0
+#define WCD9335_AMIC_PWR_LEVEL_DEFAULT 1
+#define WCD9335_AMIC_PWR_LEVEL_HP 2
+#define WCD9335_AMIC_PWR_LVL_MASK 0x60
+#define WCD9335_AMIC_PWR_LVL_SHIFT 0x5
+
+#define WCD9335_DEC_PWR_LVL_MASK 0x06
+#define WCD9335_DEC_PWR_LVL_LP 0x02
+#define WCD9335_DEC_PWR_LVL_HP 0x04
+#define WCD9335_DEC_PWR_LVL_DF 0x00
+
+#define CALCULATE_VOUT_D(req_mv) (((req_mv - 650) * 10) / 25)
+static int tasha_cpe_debug_mode;
+module_param(tasha_cpe_debug_mode, int,
+	     S_IRUGO | S_IWUSR | S_IWGRP);
+MODULE_PARM_DESC(tasha_cpe_debug_mode, "tasha boot cpe in debug mode");
+
+#define TASHA_DIG_CORE_COLLAPSE_TIMER_MS  (5 * 1000)
+
+enum {
+	POWER_COLLAPSE,
+	POWER_RESUME,
+};
+
+enum tasha_sido_voltage {
+	SIDO_VOLTAGE_SVS_MV = 950,
+	SIDO_VOLTAGE_NOMINAL_MV = 1100,
+};
+static int dig_core_collapse_enable = 1;
+module_param(dig_core_collapse_enable, int,
+		S_IRUGO | S_IWUSR | S_IWGRP);
+MODULE_PARM_DESC(dig_core_collapse_enable, "enable/disable power gating");
+
+/* dig_core_collapse timer in seconds */
+static int dig_core_collapse_timer = (TASHA_DIG_CORE_COLLAPSE_TIMER_MS/1000);
+module_param(dig_core_collapse_timer, int,
+		S_IRUGO | S_IWUSR | S_IWGRP);
+MODULE_PARM_DESC(dig_core_collapse_timer, "timer for power gating");
+/* SVS Scaling enable/disable */
+static int svs_scaling_enabled = 1;
+module_param(svs_scaling_enabled, int,
+		S_IRUGO | S_IWUSR | S_IWGRP);
+MODULE_PARM_DESC(svs_scaling_enabled, "enable/disable svs scaling");
+
+/* SVS buck setting */
+static int sido_buck_svs_voltage = SIDO_VOLTAGE_SVS_MV;
+module_param(sido_buck_svs_voltage, int,
+		S_IRUGO | S_IWUSR | S_IWGRP);
+MODULE_PARM_DESC(sido_buck_svs_voltage,
+			"setting for SVS voltage for SIDO BUCK");
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 
 static struct afe_param_slimbus_slave_port_cfg tasha_slimbus_slave_port_cfg = {
 	.minor_version = 1,
@@ -89,6 +175,13 @@ static struct afe_param_slimbus_slave_port_cfg tasha_slimbus_slave_port_cfg = {
 enum {
 	VI_SENSE_1,
 	VI_SENSE_2,
+<<<<<<< HEAD
+=======
+	AIF4_SWITCH_VALUE,
+	AUDIO_NOMINAL,
+	CPE_NOMINAL,
+	HPH_PA_DELAY,
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 };
 
 enum {
@@ -353,8 +446,267 @@ struct tasha_priv {
 	struct mutex swr_write_lock;
 	struct mutex swr_clk_lock;
 	int swr_clk_users;
+<<<<<<< HEAD
 };
 
+=======
+	int power_active_ref;
+	int (*zdet_gpio_cb)(struct snd_soc_codec *codec, bool high);
+#if defined(CONFIG_SPEAKER_EXT_PA)
+	int (*spk_ext_pa_cb)(struct snd_soc_codec *codec, int enable);
+#endif
+	int (*machine_codec_event_cb)(struct snd_soc_codec *codec,
+				      enum wcd9335_codec_event);
+	struct snd_info_entry *entry;
+	struct snd_info_entry *version_entry;
+
+	int spkr_mode;
+	int hph_l_gain;
+	int hph_r_gain;
+};
+
+static int tasha_codec_vote_max_bw(struct snd_soc_codec *codec,
+				   bool vote);
+
+static const struct tasha_reg_mask_val tasha_spkr_default[] = {
+	{WCD9335_CDC_COMPANDER7_CTL3, 0x80, 0x80},
+	{WCD9335_CDC_COMPANDER8_CTL3, 0x80, 0x80},
+	{WCD9335_CDC_COMPANDER7_CTL7, 0x01, 0x01},
+	{WCD9335_CDC_COMPANDER8_CTL7, 0x01, 0x01},
+	{WCD9335_CDC_BOOST0_BOOST_CTL, 0x7C, 0x50},
+	{WCD9335_CDC_BOOST1_BOOST_CTL, 0x7C, 0x50},
+};
+
+static const struct tasha_reg_mask_val tasha_spkr_mode1[] = {
+	{WCD9335_CDC_COMPANDER7_CTL3, 0x80, 0x00},
+	{WCD9335_CDC_COMPANDER8_CTL3, 0x80, 0x00},
+	{WCD9335_CDC_COMPANDER7_CTL7, 0x01, 0x00},
+	{WCD9335_CDC_COMPANDER8_CTL7, 0x01, 0x00},
+	{WCD9335_CDC_BOOST0_BOOST_CTL, 0x7C, 0x34},
+	{WCD9335_CDC_BOOST1_BOOST_CTL, 0x7C, 0x34},
+};
+
+/**
+ * tasha_set_spkr_mode - Configures speaker compander and smartboost
+ * settings based on speaker mode.
+ *
+ * @codec: codec instance
+ * @mode: Indicates speaker configuration mode.
+ *
+ * Returns 0 on success or -EINVAL on error.
+ */
+int tasha_set_spkr_mode(struct snd_soc_codec *codec, int mode)
+{
+	struct tasha_priv *priv = snd_soc_codec_get_drvdata(codec);
+	int i;
+	const struct tasha_reg_mask_val *regs;
+	int size;
+
+	if (!priv)
+		return -EINVAL;
+
+	switch (mode) {
+	case SPKR_MODE_1:
+		regs = tasha_spkr_mode1;
+		size = ARRAY_SIZE(tasha_spkr_mode1);
+		break;
+	default:
+		regs = tasha_spkr_default;
+		size = ARRAY_SIZE(tasha_spkr_default);
+		break;
+	}
+
+	priv->spkr_mode = mode;
+	for (i = 0; i < size; i++)
+		snd_soc_update_bits(codec, regs[i].reg,
+				    regs[i].mask, regs[i].val);
+	return 0;
+}
+EXPORT_SYMBOL(tasha_set_spkr_mode);
+
+static enum codec_variant codec_ver;
+
+static void tasha_enable_sido_buck(struct snd_soc_codec *codec)
+{
+	struct tasha_priv *tasha = snd_soc_codec_get_drvdata(codec);
+
+	snd_soc_update_bits(codec, WCD9335_ANA_RCO, 0x80, 0x80);
+	snd_soc_update_bits(codec, WCD9335_ANA_BUCK_CTL, 0x02, 0x02);
+	/* 100us sleep needed after IREF settings */
+	usleep_range(100, 110);
+	snd_soc_update_bits(codec, WCD9335_ANA_BUCK_CTL, 0x04, 0x04);
+	/* 100us sleep needed after VREF settings */
+	usleep_range(100, 110);
+	tasha->resmgr->sido_input_src = SIDO_SOURCE_RCO_BG;
+}
+
+#if defined(CONFIG_SPEAKER_EXT_PA)
+void tasha_spk_ext_pa_cb(int (*spk_ext_pa)(struct snd_soc_codec *codec,
+			int enable), struct snd_soc_codec *codec)
+{
+	struct tasha_priv *tasha = snd_soc_codec_get_drvdata(codec);
+
+	tasha->spk_ext_pa_cb = spk_ext_pa;
+}
+EXPORT_SYMBOL(tasha_spk_ext_pa_cb);
+#endif
+static void tasha_cdc_sido_ccl_enable(struct tasha_priv *tasha, bool ccl_flag)
+{
+	struct snd_soc_codec *codec = tasha->codec;
+
+	if (!codec)
+		return;
+
+	if (!TASHA_IS_2_0(tasha->wcd9xxx->version)) {
+		dev_dbg(codec->dev, "%s: tasha version < 2p0, return\n",
+			__func__);
+		return;
+	}
+	dev_dbg(codec->dev, "%s: sido_ccl_cnt=%d, ccl_flag:%d\n",
+			__func__, tasha->sido_ccl_cnt, ccl_flag);
+	if (ccl_flag) {
+		if (++tasha->sido_ccl_cnt == 1)
+			snd_soc_update_bits(codec,
+				WCD9335_SIDO_SIDO_CCL_10, 0xFF, 0x6E);
+	} else {
+		if (tasha->sido_ccl_cnt == 0) {
+			dev_dbg(codec->dev, "%s: sido_ccl already disabled\n",
+				__func__);
+			return;
+		}
+		if (--tasha->sido_ccl_cnt == 0)
+			snd_soc_update_bits(codec,
+				WCD9335_SIDO_SIDO_CCL_10, 0xFF, 0x02);
+	}
+}
+
+static bool tasha_cdc_is_svs_enabled(struct tasha_priv *tasha)
+{
+	if (svs_scaling_enabled && (codec_ver == WCD9335) &&
+		(TASHA_IS_2_0(tasha->wcd9xxx->version)))
+		return true;
+
+	return false;
+}
+
+static int tasha_cdc_req_mclk_enable(struct tasha_priv *tasha,
+				     bool enable)
+{
+	int ret = 0;
+
+	if (enable) {
+		tasha_cdc_sido_ccl_enable(tasha, true);
+		ret = clk_prepare_enable(tasha->wcd_ext_clk);
+		if (ret) {
+			dev_err(tasha->dev, "%s: ext clk enable failed\n",
+				__func__);
+			goto err;
+		}
+		/* get BG */
+		wcd_resmgr_enable_master_bias(tasha->resmgr);
+		/* get MCLK */
+		wcd_resmgr_enable_clk_block(tasha->resmgr, WCD_CLK_MCLK);
+	} else {
+		/* put MCLK */
+		wcd_resmgr_disable_clk_block(tasha->resmgr, WCD_CLK_MCLK);
+		/* put BG */
+		wcd_resmgr_disable_master_bias(tasha->resmgr);
+		clk_disable_unprepare(tasha->wcd_ext_clk);
+		tasha_cdc_sido_ccl_enable(tasha, false);
+	}
+err:
+	return ret;
+}
+
+static int tasha_cdc_check_sido_value(enum tasha_sido_voltage req_mv)
+{
+	if ((req_mv != SIDO_VOLTAGE_SVS_MV) &&
+		(req_mv != SIDO_VOLTAGE_NOMINAL_MV))
+		return -EINVAL;
+
+	return 0;
+}
+
+static void tasha_codec_apply_sido_voltage(
+				struct tasha_priv *tasha,
+				enum tasha_sido_voltage req_mv)
+{
+	u32 vout_d_val;
+	struct snd_soc_codec *codec = tasha->codec;
+	int ret;
+
+	if (!codec)
+		return;
+
+	if (!tasha_cdc_is_svs_enabled(tasha))
+		return;
+
+	if ((sido_buck_svs_voltage != SIDO_VOLTAGE_SVS_MV) &&
+		(sido_buck_svs_voltage != SIDO_VOLTAGE_NOMINAL_MV))
+		sido_buck_svs_voltage = SIDO_VOLTAGE_SVS_MV;
+
+	ret = tasha_cdc_check_sido_value(req_mv);
+	if (ret < 0) {
+		dev_dbg(codec->dev, "%s: requested mv=%d not in range\n",
+			__func__, req_mv);
+		return;
+	}
+	if (req_mv == tasha->sido_voltage) {
+		dev_dbg(codec->dev, "%s: Already at requested mv=%d\n",
+			__func__, req_mv);
+		return;
+	}
+	if (req_mv == sido_buck_svs_voltage) {
+		if (test_bit(AUDIO_NOMINAL, &tasha->status_mask) ||
+			test_bit(CPE_NOMINAL, &tasha->status_mask)) {
+			dev_dbg(codec->dev,
+				"%s: nominal client running, status_mask=%lu\n",
+				__func__, tasha->status_mask);
+			return;
+		}
+	}
+	/* compute the vout_d step value */
+	vout_d_val = CALCULATE_VOUT_D(req_mv);
+	snd_soc_write(codec, WCD9335_ANA_BUCK_VOUT_D, vout_d_val & 0xFF);
+	snd_soc_update_bits(codec, WCD9335_ANA_BUCK_CTL, 0x80, 0x80);
+
+	/* 1 msec sleep required after SIDO Vout_D voltage change */
+	usleep_range(1000, 1100);
+	tasha->sido_voltage = req_mv;
+	dev_dbg(codec->dev,
+		"%s: updated SIDO buck Vout_D to %d, vout_d step = %u\n",
+		__func__, tasha->sido_voltage, vout_d_val);
+
+	snd_soc_update_bits(codec, WCD9335_ANA_BUCK_CTL,
+				0x80, 0x00);
+}
+
+static int tasha_codec_update_sido_voltage(
+				struct tasha_priv *tasha,
+				enum tasha_sido_voltage req_mv)
+{
+	int ret = 0;
+
+	if (!tasha_cdc_is_svs_enabled(tasha))
+		return ret;
+
+	mutex_lock(&tasha->sido_lock);
+	/* enable mclk before setting SIDO voltage */
+	ret = tasha_cdc_req_mclk_enable(tasha, true);
+	if (ret) {
+		dev_err(tasha->dev, "%s: ext clk enable failed\n",
+			__func__);
+		goto err;
+	}
+	tasha_codec_apply_sido_voltage(tasha, req_mv);
+	tasha_cdc_req_mclk_enable(tasha, false);
+
+err:
+	mutex_unlock(&tasha->sido_lock);
+	return ret;
+}
+
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 int tasha_enable_efuse_sensing(struct snd_soc_codec *codec)
 {
 	tasha_cdc_mclk_enable(codec, true, false);
@@ -584,9 +936,65 @@ static int slim_tx_mixer_put(struct snd_kcontrol *kcontrol,
 		mutex_unlock(&codec->mutex);
 		return -EINVAL;
 	}
+<<<<<<< HEAD
 	pr_debug("%s: name %s sname %s updated value %u shift %d\n", __func__,
 		widget->name, widget->sname, tasha_p->tx_port_value,
 		widget->shift);
+=======
+	mutex_lock(&tasha->micb_lock);
+
+	switch (req) {
+	case MICB_PULLUP_ENABLE:
+		tasha->pullup_ref[micb_index]++;
+		if ((tasha->pullup_ref[micb_index] == 1) &&
+		    (tasha->micb_ref[micb_index] == 0))
+			snd_soc_update_bits(codec, micb_reg, 0xC0, 0x80);
+		break;
+	case MICB_PULLUP_DISABLE:
+		tasha->pullup_ref[micb_index]--;
+		if (tasha->pullup_ref[micb_index] < 0)
+			tasha->pullup_ref[micb_index] = 0;
+		if ((tasha->pullup_ref[micb_index] == 0) &&
+		    (tasha->micb_ref[micb_index] == 0))
+			snd_soc_update_bits(codec, micb_reg, 0xC0, 0x00);
+		break;
+	case MICB_ENABLE:
+		tasha->micb_ref[micb_index]++;
+		if (tasha->micb_ref[micb_index] == 1) {
+			snd_soc_update_bits(codec, micb_reg, 0xC0, 0x40);
+			if (post_on_event)
+				blocking_notifier_call_chain(&tasha->notifier,
+						post_on_event, &tasha->mbhc);
+		}
+		if (is_dapm && post_dapm_on)
+			blocking_notifier_call_chain(&tasha->notifier,
+					post_dapm_on, &tasha->mbhc);
+		break;
+	case MICB_DISABLE:
+		tasha->micb_ref[micb_index]--;
+		if ((tasha->micb_ref[micb_index] == 0) &&
+		    (tasha->pullup_ref[micb_index] > 0))
+			snd_soc_update_bits(codec, micb_reg, 0xC0, 0x80);
+		else if ((tasha->micb_ref[micb_index] == 0) &&
+			 (tasha->pullup_ref[micb_index] == 0)) {
+			if (pre_off_event)
+				blocking_notifier_call_chain(&tasha->notifier,
+						pre_off_event, &tasha->mbhc);
+			snd_soc_update_bits(codec, micb_reg, 0xC0, 0x00);
+			if (post_off_event)
+				blocking_notifier_call_chain(&tasha->notifier,
+						post_off_event, &tasha->mbhc);
+		}
+		if (is_dapm && post_dapm_off)
+			blocking_notifier_call_chain(&tasha->notifier,
+					post_dapm_off, &tasha->mbhc);
+		break;
+	};
+
+	dev_dbg(codec->dev, "%s: micb_num:%d, micb_ref: %d, pullup_ref: %d\n",
+		__func__, micb_num, tasha->micb_ref[micb_index],
+		tasha->pullup_ref[micb_index]);
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 
 	mutex_unlock(&codec->mutex);
 	snd_soc_dapm_mixer_update_power(widget, kcontrol, enable);
@@ -597,11 +1005,38 @@ static int slim_tx_mixer_put(struct snd_kcontrol *kcontrol,
 static int slim_rx_mux_get(struct snd_kcontrol *kcontrol,
 			   struct snd_ctl_elem_value *ucontrol)
 {
+<<<<<<< HEAD
 	struct snd_soc_dapm_widget_list *wlist =
 					snd_kcontrol_chip(kcontrol);
 	struct snd_soc_dapm_widget *widget = wlist->widgets[0];
 	struct snd_soc_codec *codec = widget->codec;
 	struct tasha_priv *tasha_p = snd_soc_codec_get_drvdata(codec);
+=======
+	int ret;
+
+	/*
+	 * If micbias is requested, make sure that there
+	 * is vote to enable mclk
+	 */
+#if defined(CONFIG_WCD9335_CODEC_MCLK_USE_MSM_GPIO)
+#else
+	if (req == MICB_ENABLE)
+		tasha_cdc_mclk_enable(codec, true, false);
+#endif
+
+	ret = tasha_micbias_control(codec, MIC_BIAS_2, req, false);
+
+	/*
+	 * Release vote for mclk while requesting for
+	 * micbias disable
+	 */
+#if defined(CONFIG_WCD9335_CODEC_MCLK_USE_MSM_GPIO)
+
+#else
+	if (req == MICB_DISABLE)
+		tasha_cdc_mclk_enable(codec, false, false);
+#endif
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 
 	ucontrol->value.enumerated.item[0] = tasha_p->rx_port_value;
 	return 0;
@@ -822,6 +1257,7 @@ static int tasha_put_iir_enable_audio_mixer(
 					struct snd_kcontrol *kcontrol,
 					struct snd_ctl_elem_value *ucontrol)
 {
+<<<<<<< HEAD
 	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
 	int iir_idx = ((struct soc_multi_mixer_control *)
 					kcontrol->private_value)->reg;
@@ -830,6 +1266,62 @@ static int tasha_put_iir_enable_audio_mixer(
 	bool iir_band_en_status;
 	int value = ucontrol->value.integer.value[0];
 	u16 iir_reg = WCD9335_CDC_SIDETONE_IIR0_IIR_CTL + 16 * iir_idx;
+=======
+	int i;
+	u16 val;
+	s16 c1;
+	s32 x1, d1;
+	int32_t denom;
+	int minCode_param[] = {
+			3277, 1639, 820, 410, 205, 103, 52, 26
+	};
+
+	wcd9xxx_reg_update_bits(&wcd9xxx->core_res,
+				WCD9335_ANA_MBHC_ZDET, 0x20, 0x20);
+	for (i = 0; i < TASHA_ZDET_NUM_MEASUREMENTS; i++) {
+		val = wcd9xxx_reg_read(&wcd9xxx->core_res,
+					WCD9335_ANA_MBHC_RESULT_2);
+		if (val & 0x80)
+			break;
+	}
+	val = val << 0x8;
+	val |= wcd9xxx_reg_read(&wcd9xxx->core_res,
+				WCD9335_ANA_MBHC_RESULT_1);
+	wcd9xxx_reg_update_bits(&wcd9xxx->core_res,
+				WCD9335_ANA_MBHC_ZDET, 0x20, 0x00);
+	x1 = TASHA_MBHC_GET_X1(val);
+	c1 = TASHA_MBHC_GET_C1(val);
+	/* If ramp is not complete, give additional 5ms */
+	if ((c1 < 2) && x1)
+		usleep_range(5000, 5050);
+
+	if (!c1 || !x1) {
+		dev_dbg(wcd9xxx->dev,
+			"%s: Impedance detect ramp error, c1=%d, x1=0x%x\n",
+			__func__, c1, x1);
+		goto ramp_down;
+	}
+	d1 = d1_a[c1];
+	denom = (x1 * d1) - (1 << (14 - noff));
+	if (denom > 0)
+		*zdet = (TASHA_MBHC_ZDET_CONST * 1000) / denom;
+	else if (x1 < minCode_param[noff])
+		*zdet = TASHA_ZDET_FLOATING_IMPEDANCE;
+
+	dev_dbg(wcd9xxx->dev, "%s: d1=%d, c1=%d, x1=0x%x, z_val=%d(milliOhm)\n",
+		__func__, d1, c1, x1, *zdet);
+ramp_down:
+	i = 0;
+	while (x1) {
+		wcd9xxx_bulk_read(&wcd9xxx->core_res,
+				WCD9335_ANA_MBHC_RESULT_1, 2, (u8 *)&val);
+		x1 = TASHA_MBHC_GET_X1(val);
+		i++;
+		if (i == TASHA_ZDET_NUM_MEASUREMENTS)
+			break;
+	}
+}
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 
 	/* Mask first 5 bits, 6-8 are reserved */
 	snd_soc_update_bits(codec, iir_reg, (1 << band_idx),
@@ -857,10 +1349,38 @@ static uint32_t get_iir_band_coeff(struct snd_soc_codec *codec,
 	value |= snd_soc_read(codec,
 		(WCD9335_CDC_SIDETONE_IIR0_IIR_COEF_B2_CTL + 16 * iir_idx));
 
+<<<<<<< HEAD
 	snd_soc_write(codec,
 		(WCD9335_CDC_SIDETONE_IIR0_IIR_COEF_B1_CTL + 16 * iir_idx),
 		((band_idx * BAND_MAX + coeff_idx)
 		* sizeof(uint32_t) + 1) & 0x7F);
+=======
+static void tasha_wcd_mbhc_calc_impedance(struct wcd_mbhc *mbhc, uint32_t *zl,
+					  uint32_t *zr)
+{
+	struct snd_soc_codec *codec = mbhc->codec;
+	struct tasha_priv *tasha = snd_soc_codec_get_drvdata(codec);
+	struct wcd9xxx *wcd9xxx = tasha->wcd9xxx;
+	s16 reg0, reg1, reg2, reg3, reg4;
+	int32_t z1L, z1R, z1Ls;
+	int zMono, z_diff1, z_diff2;
+	bool is_fsm_disable = false;
+	bool is_change = false;
+	struct tasha_mbhc_zdet_param zdet_param[] = {
+		{4, 0, 4, 0x08, 0x14, 0x18}, /* < 32ohm */
+		{2, 0, 3, 0x18, 0x7C, 0x90}, /* 32ohm < Z < 400ohm */
+		{1, 4, 5, 0x18, 0x7C, 0x90}, /* 400ohm < Z < 1200ohm */
+		{1, 6, 7, 0x18, 0x7C, 0x90}, /* >1200ohm */
+	};
+	struct tasha_mbhc_zdet_param *zdet_param_ptr = NULL;
+	s16 d1_a[][4] = {
+		{0, 30, 90, 30},
+		{0, 30, 30, 5},
+		{0, 30, 30, 5},
+		{0, 30, 30, 5},
+	};
+	s16 *d1 = NULL;
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 
 	value |= (snd_soc_read(codec,
 			       (WCD9335_CDC_SIDETONE_IIR0_IIR_COEF_B2_CTL +
@@ -1309,6 +1829,7 @@ static int tasha_set_compander(struct snd_kcontrol *kcontrol,
 		 __func__, comp + 1, tasha->comp_enabled[comp], value);
 	tasha->comp_enabled[comp] = value;
 
+<<<<<<< HEAD
 	/* Any specific register configuration for compander */
 	switch (comp) {
 	case COMPANDER_1:
@@ -1346,6 +1867,32 @@ static int tasha_set_compander(struct snd_kcontrol *kcontrol,
 			__func__, comp);
 	};
 	return 0;
+=======
+	if (up) {
+		list_for_each_entry(ch, &dai->wcd9xxx_ch_list, list) {
+			ret = wcd9xxx_get_slave_port(ch->ch_num);
+			if (ret < 0) {
+				pr_err("%s: Invalid slave port ID: %d\n",
+				       __func__, ret);
+				ret = -EINVAL;
+			} else {
+				set_bit(ret, &dai->ch_mask);
+			}
+		}
+	} else {
+		ret = wait_event_timeout(dai->dai_wait, (dai->ch_mask == 0),
+					 msecs_to_jiffies(
+						TASHA_SLIM_CLOSE_TIMEOUT));
+		if (!ret) {
+			pr_err("%s: Slim close tx/rx wait timeout, ch_mask:0x%lx\n",
+				__func__, dai->ch_mask);
+			ret = -ETIMEDOUT;
+		} else {
+			ret = 0;
+		}
+	}
+	return ret;
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 }
 
 static int tasha_codec_enable_rx_bias(struct snd_soc_dapm_widget *w,
@@ -1401,11 +1948,29 @@ static int tasha_codec_enable_hphr_pa(struct snd_soc_dapm_widget *w,
 					    0x10, 0x00);
 		break;
 	case SND_SOC_DAPM_POST_PMD:
+<<<<<<< HEAD
 		/*
 		 * 5ms sleep is required after PA is disabled as per
 		 * HW requirement
 		 */
 		usleep_range(5000, 5500);
+=======
+		tasha_codec_vote_max_bw(codec, true);
+		ret = wcd9xxx_disconnect_port(core, &dai->wcd9xxx_ch_list,
+					      dai->grph);
+		dev_dbg(codec->dev, "%s: Disconnect RX port, ret = %d\n",
+			__func__, ret);
+
+		if (!dai->bus_down_in_recovery)
+			ret = tasha_codec_enable_slim_chmask(dai, false);
+		else
+			dev_dbg(codec->dev,
+				"%s: bus in recovery skip enable slim_chmask",
+				__func__);
+		ret = wcd9xxx_close_slim_sch_rx(core, &dai->wcd9xxx_ch_list,
+						dai->grph);
+		tasha_codec_vote_max_bw(codec, false);
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 		break;
 	};
 
@@ -1688,6 +2253,7 @@ static int tasha_codec_ear_dac_event(struct snd_soc_dapm_widget *w,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int tasha_codec_spk_boost_event(struct snd_soc_dapm_widget *w,
 				struct snd_kcontrol *kcontrol,
 				int event)
@@ -1695,6 +2261,87 @@ static int tasha_codec_spk_boost_event(struct snd_soc_dapm_widget *w,
 	struct snd_soc_codec *codec = w->codec;
 	u16 boost_path_ctl, boost_path_cfg1;
 	u16 reg, reg_mix;
+=======
+static void tasha_codec_hph_post_pa_config(struct tasha_priv *tasha,
+	int mode, int event)
+	{
+		u8 scale_val = 0;
+
+		if (!TASHA_IS_2_0(tasha->wcd9xxx->version))
+			return;
+
+		switch (event) {
+		case SND_SOC_DAPM_POST_PMU:
+			switch (mode) {
+			case CLS_H_HIFI:
+				scale_val = 0x3;
+				break;
+			case CLS_H_LOHIFI:
+				scale_val = 0x1;
+				break;
+			}
+			break;
+		case SND_SOC_DAPM_PRE_PMD:
+			scale_val = 0x6;
+			break;
+	}
+
+	if (scale_val)
+		snd_soc_update_bits(tasha->codec, WCD9335_HPH_PA_CTL1, 0x0E,
+			scale_val << 1);
+	if (SND_SOC_DAPM_EVENT_ON(event)) {
+		if (tasha->comp_enabled[COMPANDER_1] ||
+			tasha->comp_enabled[COMPANDER_2]) {
+			snd_soc_update_bits(tasha->codec, WCD9335_HPH_L_EN,
+				0x20, 0x00);
+			snd_soc_update_bits(tasha->codec, WCD9335_HPH_R_EN,
+				0x20, 0x00);
+			snd_soc_update_bits(tasha->codec, WCD9335_HPH_AUTO_CHOP,
+				0x20, 0x20);
+		}
+		snd_soc_update_bits(tasha->codec, WCD9335_HPH_L_EN, 0x1F,
+			tasha->hph_l_gain);
+		snd_soc_update_bits(tasha->codec, WCD9335_HPH_R_EN, 0x1F,
+			tasha->hph_r_gain);
+	}
+
+	if (SND_SOC_DAPM_EVENT_OFF(event)) {
+		snd_soc_update_bits(tasha->codec, WCD9335_HPH_AUTO_CHOP, 0x20,
+			0x00);
+	}
+}
+
+static void tasha_codec_override(struct snd_soc_codec *codec,
+									int mode,
+									int event)
+{
+	if (mode == CLS_AB) {
+		switch (event) {
+		case SND_SOC_DAPM_POST_PMU:
+			if (!(snd_soc_read(codec,
+					WCD9335_CDC_RX2_RX_PATH_CTL) & 0x10) &&
+				(!(snd_soc_read(codec,
+					WCD9335_CDC_RX1_RX_PATH_CTL) & 0x10)))
+				snd_soc_update_bits(codec,
+					WCD9XXX_A_ANA_RX_SUPPLIES, 0x02, 0x02);
+			break;
+		case SND_SOC_DAPM_POST_PMD:
+			snd_soc_update_bits(codec,
+				WCD9XXX_A_ANA_RX_SUPPLIES, 0x02, 0x00);
+			break;
+		}
+	}
+}
+
+static int tasha_codec_enable_hphr_pa(struct snd_soc_dapm_widget *w,
+				      struct snd_kcontrol *kcontrol,
+				      int event)
+{
+	struct snd_soc_codec *codec = w->codec;
+	struct tasha_priv *tasha = snd_soc_codec_get_drvdata(codec);
+	int hph_mode = tasha->hph_mode;
+	int ret = 0;
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 
 	dev_dbg(codec->dev, "%s %s %d\n", __func__, w->name, event);
 
@@ -1712,6 +2359,7 @@ static int tasha_codec_spk_boost_event(struct snd_soc_dapm_widget *w,
 
 	switch (event) {
 	case SND_SOC_DAPM_PRE_PMU:
+<<<<<<< HEAD
 		snd_soc_update_bits(codec, boost_path_ctl, 0x10, 0x10);
 		snd_soc_update_bits(codec, boost_path_cfg1, 0x01, 0x01);
 		snd_soc_update_bits(codec, reg, 0x10, 0x00);
@@ -1721,6 +2369,51 @@ static int tasha_codec_spk_boost_event(struct snd_soc_dapm_widget *w,
 	case SND_SOC_DAPM_POST_PMD:
 		snd_soc_update_bits(codec, boost_path_cfg1, 0x01, 0x00);
 		snd_soc_update_bits(codec, boost_path_ctl, 0x10, 0x00);
+=======
+		set_bit(HPH_PA_DELAY, &tasha->status_mask);
+		break;
+	case SND_SOC_DAPM_POST_PMU:
+		/*
+		  * 7ms sleep is required after PA is enabled as per
+		 * HW requirement
+		 */
+		if (test_bit(HPH_PA_DELAY, &tasha->status_mask)) {
+			usleep_range(7000, 7100);
+			clear_bit(HPH_PA_DELAY, &tasha->status_mask);
+		}
+		tasha_codec_hph_post_pa_config(tasha, hph_mode, event);
+		snd_soc_update_bits(codec, WCD9335_CDC_RX2_RX_PATH_CTL,
+				    0x10, 0x00);
+		/* Remove mix path mute if it is enabled */
+		if ((snd_soc_read(codec, WCD9335_CDC_RX2_RX_PATH_MIX_CTL)) &
+				  0x10)
+			snd_soc_update_bits(codec,
+					    WCD9335_CDC_RX2_RX_PATH_MIX_CTL,
+					    0x10, 0x00);
+			tasha_codec_override(codec, hph_mode, event);
+		break;
+	case SND_SOC_DAPM_PRE_PMD:
+		blocking_notifier_call_chain(&tasha->notifier,
+					WCD_EVENT_PRE_HPHR_PA_OFF,
+					&tasha->mbhc);
+		tasha_codec_hph_post_pa_config(tasha, hph_mode, event);
+		break;
+	case SND_SOC_DAPM_POST_PMD:
+		/*
+		 * 5ms sleep is required after PA is disabled as per
+		 * HW requirement
+		 */
+		usleep_range(5000, 5500);
+		tasha_codec_override(codec, hph_mode, event);
+		blocking_notifier_call_chain(&tasha->notifier,
+					WCD_EVENT_POST_HPHR_PA_OFF,
+					&tasha->mbhc);
+		if (!(strcmp(w->name, "ANC HPHR PA"))) {
+			ret = tasha_codec_enable_anc(w, kcontrol, event);
+			snd_soc_update_bits(codec,
+				WCD9335_CDC_RX2_RX_PATH_CFG0, 0x10, 0x00);
+		}
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 		break;
 	};
 
@@ -1729,6 +2422,7 @@ static int tasha_codec_spk_boost_event(struct snd_soc_dapm_widget *w,
 
 static u16 tasha_interp_get_primary_reg(u16 reg, u16 *ind)
 {
+<<<<<<< HEAD
 	u16 prim_int_reg;
 
 	switch (reg) {
@@ -1776,6 +2470,61 @@ static u16 tasha_interp_get_primary_reg(u16 reg, u16 *ind)
 	case WCD9335_CDC_RX8_RX_PATH_MIX_CTL:
 		prim_int_reg = WCD9335_CDC_RX8_RX_PATH_CTL;
 		*ind = 8;
+=======
+	struct snd_soc_codec *codec = w->codec;
+	struct tasha_priv *tasha = snd_soc_codec_get_drvdata(codec);
+	int hph_mode = tasha->hph_mode;
+	int ret = 0;
+
+	dev_dbg(codec->dev, "%s %s %d\n", __func__, w->name, event);
+
+	switch (event) {
+	case SND_SOC_DAPM_PRE_PMU:
+		set_bit(HPH_PA_DELAY, &tasha->status_mask);
+		break;
+	case SND_SOC_DAPM_POST_PMU:
+		/*
+		  * 7ms sleep is required after PA is enabled as per
+		 * HW requirement
+		 */
+		if (test_bit(HPH_PA_DELAY, &tasha->status_mask)) {
+			usleep_range(7000, 7100);
+			clear_bit(HPH_PA_DELAY, &tasha->status_mask);
+		}
+
+		tasha_codec_hph_post_pa_config(tasha, hph_mode, event);
+		snd_soc_update_bits(codec, WCD9335_CDC_RX1_RX_PATH_CTL,
+				    0x10, 0x00);
+		/* Remove mix path mute if it is enabled */
+		if ((snd_soc_read(codec, WCD9335_CDC_RX1_RX_PATH_MIX_CTL)) &
+				  0x10)
+			snd_soc_update_bits(codec,
+					    WCD9335_CDC_RX1_RX_PATH_MIX_CTL,
+					    0x10, 0x00);
+		tasha_codec_override(codec, hph_mode, event);
+		break;
+	case SND_SOC_DAPM_PRE_PMD:
+		blocking_notifier_call_chain(&tasha->notifier,
+					WCD_EVENT_PRE_HPHL_PA_OFF,
+					&tasha->mbhc);
+		tasha_codec_hph_post_pa_config(tasha, hph_mode, event);
+		break;
+	case SND_SOC_DAPM_POST_PMD:
+		/*
+		 * 5ms sleep is required after PA is disabled as per
+		 * HW requirement
+		 */
+		usleep_range(5000, 5500);
+		tasha_codec_override(codec, hph_mode, event);
+		blocking_notifier_call_chain(&tasha->notifier,
+					WCD_EVENT_POST_HPHL_PA_OFF,
+					&tasha->mbhc);
+		if (!(strcmp(w->name, "ANC HPHL PA"))) {
+			ret = tasha_codec_enable_anc(w, kcontrol, event);
+			snd_soc_update_bits(codec,
+				WCD9335_CDC_RX1_RX_PATH_CFG0, 0x10, 0x00);
+		}
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 		break;
 	};
 
@@ -1786,13 +2535,25 @@ static int tasha_codec_enable_prim_interpolator(
 				struct snd_soc_codec *codec,
 				u16 reg, int event)
 {
+<<<<<<< HEAD
 	struct tasha_priv *tasha = snd_soc_codec_get_drvdata(codec);
 	u16 prim_int_reg;
 	u16 ind;
+=======
+	struct snd_soc_codec *codec = w->codec;
+#if defined(CONFIG_SPEAKER_EXT_PA)
+	struct tasha_priv *tasha = snd_soc_codec_get_drvdata(codec);
+#endif
+	u16 lineout_vol_reg, lineout_mix_vol_reg;
+	int ret = 0;
+
+	dev_dbg(codec->dev, "%s %s %d\n", __func__, w->name, event);
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 
 	prim_int_reg = tasha_interp_get_primary_reg(reg, &ind);
 
 	switch (event) {
+<<<<<<< HEAD
 	case SND_SOC_DAPM_PRE_PMU:
 		tasha->prim_int_users[ind]++;
 		if (tasha->prim_int_users[ind] == 1) {
@@ -1810,6 +2571,45 @@ static int tasha_codec_enable_prim_interpolator(
 		if (tasha->prim_int_users[ind] == 0) {
 			snd_soc_update_bits(codec, prim_int_reg,
 					1 << 0x5, 0 << 0x5);
+=======
+	case SND_SOC_DAPM_POST_PMU:
+		/* 5ms sleep is required after PA is enabled as per
+		 * HW requirement
+		 */
+		usleep_range(5000, 5500);
+		snd_soc_update_bits(codec, lineout_vol_reg,
+				    0x10, 0x00);
+		/* Remove mix path mute if it is enabled */
+		if ((snd_soc_read(codec, lineout_mix_vol_reg)) & 0x10)
+			snd_soc_update_bits(codec,
+					    lineout_mix_vol_reg,
+					    0x10, 0x00);
+		tasha_codec_override(codec, CLS_AB, event);
+#if defined(CONFIG_SPEAKER_EXT_PA)
+		if (tasha->spk_ext_pa_cb)
+			tasha->spk_ext_pa_cb(codec, true);
+#endif
+		break;
+	case SND_SOC_DAPM_POST_PMD:
+#if defined(CONFIG_SPEAKER_EXT_PA)
+		if (tasha->spk_ext_pa_cb)
+			tasha->spk_ext_pa_cb(codec, false);
+#endif
+		/* 5ms sleep is required after PA is disabled as per
+		 * HW requirement
+		 */
+		usleep_range(5000, 5500);
+		tasha_codec_override(codec, CLS_AB, event);
+		if (!(strcmp(w->name, "ANC LINEOUT1 PA")) ||
+			!(strcmp(w->name, "ANC LINEOUT2 PA"))) {
+			ret = tasha_codec_enable_anc(w, kcontrol, event);
+			if (!(strcmp(w->name, "ANC LINEOUT1 PA")))
+				snd_soc_update_bits(codec,
+				WCD9335_CDC_RX3_RX_PATH_CFG0, 0x10, 0x10);
+			else
+				snd_soc_update_bits(codec,
+				WCD9335_CDC_RX4_RX_PATH_CFG0, 0x10, 0x10);
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 		}
 		break;
 	};
@@ -1920,6 +2720,7 @@ static int tasha_codec_enable_spline_src(struct snd_soc_codec *codec,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int tasha_codec_enable_spline_resampler(struct snd_soc_dapm_widget *w,
 				struct snd_kcontrol *kcontrol,
 				int event)
@@ -1933,8 +2734,65 @@ static int tasha_codec_enable_spline_resampler(struct snd_soc_dapm_widget *w,
 		dev_err(codec->dev, "%s: Spline SRC%u input not selected\n",
 			__func__, w->shift);
 		return -EINVAL;
+=======
+static void tasha_codec_hph_mode_gain_opt(struct snd_soc_codec *codec,
+	u8 gain)
+{
+	struct tasha_priv *tasha = snd_soc_codec_get_drvdata(codec);
+	u8 hph_l_en, hph_r_en;
+	u8 l_val, r_val;
+	u8 hph_pa_status;
+	bool is_hphl_pa, is_hphr_pa;
+
+	hph_pa_status = snd_soc_read(codec, WCD9335_ANA_HPH);
+	is_hphl_pa = hph_pa_status >> 7;
+	is_hphr_pa = (hph_pa_status & 0x40) >> 6;
+
+	hph_l_en = snd_soc_read(codec, WCD9335_HPH_L_EN);
+	hph_r_en = snd_soc_read(codec, WCD9335_HPH_R_EN);
+
+	l_val = (hph_l_en & 0xC0) | 0x20 | gain;
+	r_val = (hph_r_en & 0xC0) | 0x20 | gain;
+
+	/*
+	 * Set HPH_L & HPH_R gain source selection to REGISTER
+	 * for better click and pop only if corresponding PAs are
+	 * not enabled. Also cache the values of the HPHL/R
+	 * PA gains to be applied after PAs are enabled
+	 */
+	if ((l_val != hph_l_en) && !is_hphl_pa) {
+		snd_soc_write(codec, WCD9335_HPH_L_EN, l_val);
+		tasha->hph_l_gain = hph_l_en & 0x1F;
 	}
 
+	if ((r_val != hph_r_en) && !is_hphr_pa) {
+		snd_soc_write(codec, WCD9335_HPH_R_EN, r_val);
+		tasha->hph_r_gain = hph_r_en & 0x1F;
+	}
+}
+
+static void tasha_codec_hph_lohifi_config(struct snd_soc_codec *codec,
+					  int event)
+{
+	if (SND_SOC_DAPM_EVENT_ON(event)) {
+		snd_soc_update_bits(codec, WCD9335_RX_BIAS_HPH_PA, 0x0F, 0x06);
+		snd_soc_update_bits(codec, WCD9335_RX_BIAS_HPH_RDACBUFF_CNP2,
+				    0xF0, 0x40);
+		snd_soc_update_bits(codec, WCD9335_HPH_CNP_WG_CTL, 0x07, 0x03);
+		snd_soc_update_bits(codec, WCD9335_HPH_PA_CTL2, 0x08, 0x08);
+		snd_soc_update_bits(codec, WCD9335_HPH_PA_CTL1, 0x0E, 0x0C);
+		tasha_codec_hph_mode_gain_opt(codec, 0x11);
+	}
+
+	if (SND_SOC_DAPM_EVENT_OFF(event)) {
+		snd_soc_update_bits(codec, WCD9335_HPH_PA_CTL2, 0x08, 0x00);
+		snd_soc_update_bits(codec, WCD9335_HPH_CNP_WG_CTL, 0x07, 0x02);
+		snd_soc_write(codec, WCD9335_RX_BIAS_HPH_RDACBUFF_CNP2, 0x8A);
+		snd_soc_update_bits(codec, WCD9335_RX_BIAS_HPH_PA, 0x0F, 0x0A);
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
+	}
+
+<<<<<<< HEAD
 	switch (w->shift) {
 	case SPLINE_SRC0:
 		ret = tasha_codec_enable_spline_src(codec,
@@ -1963,6 +2821,54 @@ static int tasha_codec_enable_spline_resampler(struct snd_soc_dapm_widget *w,
 	};
 
 	return ret;
+=======
+static void tasha_codec_hph_lp_config(struct snd_soc_codec *codec,
+				      int event)
+{
+	if (SND_SOC_DAPM_EVENT_ON(event)) {
+		snd_soc_update_bits(codec, WCD9335_HPH_PA_CTL1, 0x0E, 0x0C);
+		tasha_codec_hph_mode_gain_opt(codec, 0x10);
+		snd_soc_update_bits(codec, WCD9335_HPH_CNP_WG_CTL, 0x07, 0x03);
+		snd_soc_update_bits(codec, WCD9335_HPH_PA_CTL2, 0x08, 0x08);
+		snd_soc_update_bits(codec, WCD9335_HPH_PA_CTL2, 0x04, 0x04);
+		snd_soc_update_bits(codec, WCD9335_HPH_PA_CTL2, 0x20, 0x20);
+		snd_soc_update_bits(codec, WCD9335_HPH_RDAC_LDO_CTL, 0x07,
+				    0x01);
+		snd_soc_update_bits(codec, WCD9335_HPH_RDAC_LDO_CTL, 0x70,
+				    0x10);
+		snd_soc_update_bits(codec, WCD9335_RX_BIAS_HPH_RDAC_LDO,
+				    0x0F, 0x01);
+		snd_soc_update_bits(codec, WCD9335_RX_BIAS_HPH_RDAC_LDO,
+				    0xF0, 0x10);
+	}
+
+	if (SND_SOC_DAPM_EVENT_OFF(event)) {
+		snd_soc_write(codec, WCD9335_RX_BIAS_HPH_RDAC_LDO, 0x88);
+		snd_soc_write(codec, WCD9335_HPH_RDAC_LDO_CTL, 0x33);
+		snd_soc_update_bits(codec, WCD9335_HPH_PA_CTL2, 0x20, 0x00);
+		snd_soc_update_bits(codec, WCD9335_HPH_PA_CTL2, 0x04, 0x00);
+		snd_soc_update_bits(codec, WCD9335_HPH_PA_CTL2, 0x08, 0x00);
+		snd_soc_update_bits(codec, WCD9335_HPH_CNP_WG_CTL, 0x07, 0x02);
+		snd_soc_update_bits(codec, WCD9335_HPH_R_EN, 0xC0, 0x80);
+		snd_soc_update_bits(codec, WCD9335_HPH_L_EN, 0xC0, 0x80);
+	}
+}
+
+static void tasha_codec_hph_hifi_config(struct snd_soc_codec *codec,
+	int event)
+{
+	if (SND_SOC_DAPM_EVENT_ON(event)) {
+		snd_soc_update_bits(codec, WCD9335_HPH_CNP_WG_CTL, 0x07, 0x03);
+		snd_soc_update_bits(codec, WCD9335_HPH_PA_CTL2, 0x08, 0x08);
+		snd_soc_update_bits(codec, WCD9335_HPH_PA_CTL1, 0x0E, 0x0C);
+		tasha_codec_hph_mode_gain_opt(codec, 0x11);
+	}
+
+	if (SND_SOC_DAPM_EVENT_OFF(event)) {
+		snd_soc_update_bits(codec, WCD9335_HPH_PA_CTL2, 0x08, 0x00);
+		snd_soc_update_bits(codec, WCD9335_HPH_CNP_WG_CTL, 0x07, 0x02);
+	}
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 }
 
 static int tasha_codec_sidetone_en(struct snd_soc_dapm_widget *w,
@@ -1991,6 +2897,7 @@ static int tasha_codec_sidetone_en(struct snd_soc_dapm_widget *w,
 		return -EINVAL;
 	}
 
+<<<<<<< HEAD
 	switch (event) {
 	case SND_SOC_DAPM_PRE_PMU:
 	case SND_SOC_DAPM_POST_PMD:
@@ -2001,6 +2908,17 @@ static int tasha_codec_sidetone_en(struct snd_soc_dapm_widget *w,
 		tasha_codec_enable_prim_interpolator(codec, prim_reg, event);
 		break;
 	default:
+=======
+	switch (mode) {
+	case CLS_H_LP:
+		tasha_codec_hph_lp_config(codec, event);
+		break;
+	case CLS_H_LOHIFI:
+		tasha_codec_hph_lohifi_config(codec, event);
+		break;
+	case CLS_H_HIFI:
+		tasha_codec_hph_hifi_config(codec, event);
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 		break;
 	}
 
@@ -2061,7 +2979,21 @@ static int tasha_codec_enable_mix_path(struct snd_soc_dapm_widget *w,
 		snd_soc_write(codec, gain_reg, snd_soc_read(codec, gain_reg));
 		break;
 	case SND_SOC_DAPM_POST_PMD:
+<<<<<<< HEAD
 		tasha_codec_enable_prim_interpolator(codec, w->reg, event);
+=======
+		/* 1000us required as per HW requirement */
+		usleep_range(1000, 1100);
+		if (!(wcd_clsh_get_clsh_state(&tasha->clsh_d) &
+		     WCD_CLSH_STATE_HPHL))
+			tasha_codec_hph_mode_config(codec, event, hph_mode);
+
+		wcd_clsh_fsm(codec, &tasha->clsh_d,
+			     WCD_CLSH_EVENT_POST_PA,
+			     WCD_CLSH_STATE_HPHR,
+			     ((hph_mode == CLS_H_LOHIFI) ?
+			       CLS_H_HIFI : hph_mode));
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 		break;
 	};
 
@@ -2134,7 +3066,20 @@ static int tasha_codec_enable_interpolator(struct snd_soc_dapm_widget *w,
 		snd_soc_write(codec, gain_reg, snd_soc_read(codec, gain_reg));
 		break;
 	case SND_SOC_DAPM_POST_PMD:
+<<<<<<< HEAD
 		tasha_codec_enable_prim_interpolator(codec, reg, event);
+=======
+		/* 1000us required as per HW requirement */
+		usleep_range(1000, 1100);
+		if (!(wcd_clsh_get_clsh_state(&tasha->clsh_d) &
+		     WCD_CLSH_STATE_HPHR))
+			tasha_codec_hph_mode_config(codec, event, hph_mode);
+		wcd_clsh_fsm(codec, &tasha->clsh_d,
+			     WCD_CLSH_EVENT_POST_PA,
+			     WCD_CLSH_STATE_HPHL,
+			     ((hph_mode == CLS_H_LOHIFI) ?
+			       CLS_H_HIFI : hph_mode));
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 		break;
 	};
 
@@ -2316,8 +3261,46 @@ done:
 	return dmic_ctl_val;
 }
 
+<<<<<<< HEAD
 static int tasha_codec_enable_dmic(struct snd_soc_dapm_widget *w,
 		struct snd_kcontrol *kcontrol, int event)
+=======
+static void tasha_codec_hd2_control(struct snd_soc_codec *codec,
+	u16 prim_int_reg, int event)
+{
+	struct tasha_priv *tasha = snd_soc_codec_get_drvdata(codec);
+	u16 hd2_scale_reg;
+	u16 hd2_enable_reg = 0;
+
+	if (!TASHA_IS_2_0(tasha->wcd9xxx->version))
+		return;
+
+	if (prim_int_reg == WCD9335_CDC_RX1_RX_PATH_CTL) {
+		hd2_scale_reg = WCD9335_CDC_RX1_RX_PATH_SEC3;
+		hd2_enable_reg = WCD9335_CDC_RX1_RX_PATH_CFG0;
+	}
+	if (prim_int_reg == WCD9335_CDC_RX2_RX_PATH_CTL) {
+		hd2_scale_reg = WCD9335_CDC_RX2_RX_PATH_SEC3;
+		hd2_enable_reg = WCD9335_CDC_RX2_RX_PATH_CFG0;
+	}
+
+	if (hd2_enable_reg && SND_SOC_DAPM_EVENT_ON(event)) {
+		snd_soc_update_bits(codec, hd2_scale_reg, 0x3C, 0x10);
+		snd_soc_update_bits(codec, hd2_scale_reg, 0x03, 0x01);
+		snd_soc_update_bits(codec, hd2_enable_reg, 0x04, 0x04);
+	}
+
+	if (hd2_enable_reg && SND_SOC_DAPM_EVENT_OFF(event)) {
+		snd_soc_update_bits(codec, hd2_enable_reg, 0x04, 0x00);
+		snd_soc_update_bits(codec, hd2_scale_reg, 0x03, 0x00);
+		snd_soc_update_bits(codec, hd2_scale_reg, 0x3C, 0x00);
+	}
+}
+
+static int tasha_codec_enable_prim_interpolator(
+				struct snd_soc_codec *codec,
+				u16 reg, int event)
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 {
 	struct snd_soc_codec *codec = w->codec;
 	struct tasha_priv *tasha = snd_soc_codec_get_drvdata(codec);
@@ -2369,6 +3352,7 @@ static int tasha_codec_enable_dmic(struct snd_soc_dapm_widget *w,
 
 	switch (event) {
 	case SND_SOC_DAPM_PRE_PMU:
+<<<<<<< HEAD
 		dmic_rate_val =
 			tasha_get_dmic_clk_val(codec,
 					pdata->mclk_rate,
@@ -2381,10 +3365,20 @@ static int tasha_codec_enable_dmic(struct snd_soc_dapm_widget *w,
 				dmic_rate_val << dmic_rate_shift);
 			snd_soc_update_bits(codec, dmic_clk_reg,
 					dmic_clk_en, dmic_clk_en);
+=======
+		tasha->prim_int_users[ind]++;
+		if (tasha->prim_int_users[ind] == 1) {
+			tasha_codec_hd2_control(codec, prim_int_reg, event);
+			snd_soc_update_bits(codec, prim_int_reg,
+					    0x10, 0x10);
+			snd_soc_update_bits(codec, prim_int_reg,
+					    1 << 0x5, 1 << 0x5);
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 		}
 
 		break;
 	case SND_SOC_DAPM_POST_PMD:
+<<<<<<< HEAD
 		dmic_rate_val =
 			tasha_get_dmic_clk_val(codec,
 					pdata->mclk_rate,
@@ -2396,6 +3390,17 @@ static int tasha_codec_enable_dmic(struct snd_soc_dapm_widget *w,
 			snd_soc_update_bits(codec, dmic_clk_reg,
 				0x07 << dmic_rate_shift,
 				dmic_rate_val << dmic_rate_shift);
+=======
+		tasha->prim_int_users[ind]--;
+		if (tasha->prim_int_users[ind] == 0) {
+			snd_soc_update_bits(codec, prim_int_reg,
+					1 << 0x5, 0 << 0x5);
+			snd_soc_update_bits(codec, prim_int_reg,
+					0x40, 0x40);
+			snd_soc_update_bits(codec, prim_int_reg,
+					0x40, 0x00);
+			tasha_codec_hd2_control(codec, prim_int_reg, event);
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 		}
 		break;
 	};
@@ -5063,8 +6068,85 @@ static const struct snd_kcontrol_new tx_dmic_mux1 =
 static const struct snd_kcontrol_new tx_dmic_mux2 =
 	SOC_DAPM_ENUM("DMIC MUX2 Mux", tx_dmic_mux2_enum);
 
+<<<<<<< HEAD
 static const struct snd_kcontrol_new tx_dmic_mux3 =
 	SOC_DAPM_ENUM("DMIC MUX3 Mux", tx_dmic_mux3_enum);
+=======
+	SND_SOC_DAPM_DAC_E("RX INT0 DAC", NULL, SND_SOC_NOPM,
+		0, 0, tasha_codec_ear_dac_event,
+		SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMU |
+		SND_SOC_DAPM_PRE_PMD | SND_SOC_DAPM_POST_PMD),
+	SND_SOC_DAPM_DAC_E("RX INT1 DAC", NULL, WCD9335_ANA_HPH,
+		5, 0, tasha_codec_hphl_dac_event,
+		SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMU |
+		SND_SOC_DAPM_PRE_PMD | SND_SOC_DAPM_POST_PMD),
+	SND_SOC_DAPM_DAC_E("RX INT2 DAC", NULL, WCD9335_ANA_HPH,
+		4, 0, tasha_codec_hphr_dac_event,
+		SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMU |
+		SND_SOC_DAPM_PRE_PMD | SND_SOC_DAPM_POST_PMD),
+	SND_SOC_DAPM_DAC_E("RX INT3 DAC", NULL, SND_SOC_NOPM,
+		0, 0, tasha_codec_lineout_dac_event,
+		SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMD),
+	SND_SOC_DAPM_DAC_E("RX INT4 DAC", NULL, SND_SOC_NOPM,
+		0, 0, tasha_codec_lineout_dac_event,
+		SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMD),
+	SND_SOC_DAPM_DAC_E("RX INT5 DAC", NULL, SND_SOC_NOPM,
+		0, 0, tasha_codec_lineout_dac_event,
+		SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMD),
+	SND_SOC_DAPM_DAC_E("RX INT6 DAC", NULL, SND_SOC_NOPM,
+		0, 0, tasha_codec_lineout_dac_event,
+		SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMD),
+	SND_SOC_DAPM_PGA_E("HPHL PA", WCD9335_ANA_HPH, 7, 0, NULL, 0,
+			   tasha_codec_enable_hphl_pa,
+			   SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMU |
+			   SND_SOC_DAPM_PRE_PMD | SND_SOC_DAPM_POST_PMD),
+	SND_SOC_DAPM_PGA_E("HPHR PA", WCD9335_ANA_HPH, 6, 0, NULL, 0,
+			   tasha_codec_enable_hphr_pa,
+			   SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMU |
+			   SND_SOC_DAPM_PRE_PMD | SND_SOC_DAPM_POST_PMD),
+	SND_SOC_DAPM_PGA_E("EAR PA", WCD9335_ANA_EAR, 7, 0, NULL, 0,
+			   tasha_codec_enable_ear_pa,
+			   SND_SOC_DAPM_POST_PMU |
+			   SND_SOC_DAPM_POST_PMD),
+	SND_SOC_DAPM_PGA_E("LINEOUT1 PA", WCD9335_ANA_LO_1_2, 7, 0, NULL, 0,
+			   tasha_codec_enable_lineout_pa,
+			   SND_SOC_DAPM_POST_PMU |
+			   SND_SOC_DAPM_POST_PMD),
+	SND_SOC_DAPM_PGA_E("LINEOUT2 PA", WCD9335_ANA_LO_1_2, 6, 0, NULL, 0,
+			   tasha_codec_enable_lineout_pa,
+			   SND_SOC_DAPM_POST_PMU |
+			   SND_SOC_DAPM_POST_PMD),
+	SND_SOC_DAPM_PGA_E("LINEOUT3 PA", WCD9335_ANA_LO_3_4, 7, 0, NULL, 0,
+			   tasha_codec_enable_lineout_pa,
+			   SND_SOC_DAPM_POST_PMU |
+			   SND_SOC_DAPM_POST_PMD),
+	SND_SOC_DAPM_PGA_E("LINEOUT4 PA", WCD9335_ANA_LO_3_4, 6, 0, NULL, 0,
+			   tasha_codec_enable_lineout_pa,
+			   SND_SOC_DAPM_POST_PMU |
+			   SND_SOC_DAPM_POST_PMD),
+	SND_SOC_DAPM_PGA_E("ANC EAR PA", WCD9335_ANA_EAR, 7, 0, NULL, 0,
+			   tasha_codec_enable_ear_pa,
+			   SND_SOC_DAPM_POST_PMU |
+			   SND_SOC_DAPM_PRE_PMD | SND_SOC_DAPM_POST_PMD),
+	SND_SOC_DAPM_PGA_E("ANC HPHL PA", WCD9335_ANA_HPH, 7, 0, NULL, 0,
+			   tasha_codec_enable_hphl_pa,
+			   SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMU |
+			   SND_SOC_DAPM_PRE_PMD | SND_SOC_DAPM_POST_PMD),
+	SND_SOC_DAPM_PGA_E("ANC HPHR PA", WCD9335_ANA_HPH, 6, 0, NULL, 0,
+			   tasha_codec_enable_hphr_pa,
+			   SND_SOC_DAPM_POST_PMU |
+			   SND_SOC_DAPM_PRE_PMD | SND_SOC_DAPM_POST_PMD),
+	SND_SOC_DAPM_PGA_E("ANC LINEOUT1 PA", WCD9335_ANA_LO_1_2,
+				7, 0, NULL, 0,
+				tasha_codec_enable_lineout_pa,
+				SND_SOC_DAPM_POST_PMU |
+				SND_SOC_DAPM_PRE_PMD | SND_SOC_DAPM_POST_PMD),
+	SND_SOC_DAPM_PGA_E("ANC LINEOUT2 PA", WCD9335_ANA_LO_1_2,
+				6, 0, NULL, 0,
+				tasha_codec_enable_lineout_pa,
+				SND_SOC_DAPM_POST_PMU |
+				SND_SOC_DAPM_PRE_PMD | SND_SOC_DAPM_POST_PMD),
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 
 static const struct snd_kcontrol_new tx_dmic_mux4 =
 	SOC_DAPM_ENUM("DMIC MUX4 Mux", tx_dmic_mux4_enum);
@@ -5201,11 +6283,22 @@ static const struct snd_kcontrol_new iir1_inp2_mux =
 static const struct snd_kcontrol_new iir1_inp3_mux =
 	SOC_DAPM_ENUM("IIR1 INP3 Mux", iir1_inp3_mux_enum);
 
+<<<<<<< HEAD
 static const struct snd_kcontrol_new rx_int0_interp_mux =
 	SOC_DAPM_ENUM("RX INT0 INTERP Mux", rx_int0_interp_mux_enum);
 
 static const struct snd_kcontrol_new rx_int1_interp_mux =
 	SOC_DAPM_ENUM("RX INT1 INTERP Mux", rx_int1_interp_mux_enum);
+=======
+	wcd9xxx_set_power_state(tasha->wcd9xxx,
+			WCD_REGION_POWER_COLLAPSE_REMOVE,
+			WCD9XXX_DIG_CORE_REGION_1);
+	regcache_mark_dirty(codec->control_data);
+	regcache_sync_region(codec->control_data,
+			     TASHA_DIG_CORE_REG_MIN, TASHA_DIG_CORE_REG_MAX);
+	return 0;
+}
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 
 static const struct snd_kcontrol_new rx_int2_interp_mux =
 	SOC_DAPM_ENUM("RX INT2 INTERP Mux", rx_int2_interp_mux_enum);
@@ -5637,8 +6730,21 @@ static const struct snd_soc_dapm_widget tasha_dapm_widgets[] = {
 	SND_SOC_DAPM_MIXER("AIF1_CAP Mixer", SND_SOC_NOPM, AIF1_CAP, 0,
 		aif1_cap_mixer, ARRAY_SIZE(aif1_cap_mixer)),
 
+<<<<<<< HEAD
 	SND_SOC_DAPM_MIXER("AIF2_CAP Mixer", SND_SOC_NOPM, AIF2_CAP, 0,
 		aif2_cap_mixer, ARRAY_SIZE(aif2_cap_mixer)),
+=======
+static const struct tasha_reg_mask_val tasha_codec_reg_init_val_2_0[] = {
+	{WCD9335_RCO_CTRL_2, 0x0F, 0x08},
+	{WCD9335_RX_BIAS_FLYB_MID_RST, 0xF0, 0x10},
+	{WCD9335_FLYBACK_CTRL_1, 0x20, 0x20},
+	{WCD9335_HPH_OCP_CTL, 0xFF, 0x5A},
+	{WCD9335_HPH_L_TEST, 0x01, 0x01},
+	{WCD9335_HPH_R_TEST, 0x01, 0x01},
+	{WCD9335_HPH_REFBUFF_LP_CTL, 0x08, 0x08},
+	{WCD9335_HPH_REFBUFF_LP_CTL, 0x06, 0x02},
+};
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 
 	SND_SOC_DAPM_MIXER("AIF3_CAP Mixer", SND_SOC_NOPM, AIF3_CAP, 0,
 		aif3_cap_mixer, ARRAY_SIZE(aif3_cap_mixer)),
@@ -6436,8 +7542,12 @@ static int __tasha_cdc_mclk_enable_locked(struct tasha_priv *tasha,
 err:
 	return ret;
 }
+<<<<<<< HEAD
 
 static int __tasha_cdc_mclk_enable(struct tasha_priv *tasha,
+=======
+static int tasha_codec_cpe_fll_enable(struct snd_soc_codec *codec,
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 				   bool enable)
 {
 	int ret;
@@ -6935,6 +8045,13 @@ static int tasha_codec_probe(struct snd_soc_codec *codec)
 		tasha_init_slim_slave_cfg(codec);
 	}
 
+<<<<<<< HEAD
+=======
+	snd_soc_add_codec_controls(codec, impedance_detect_controls,
+				   ARRAY_SIZE(impedance_detect_controls));
+	snd_soc_add_codec_controls(codec, hph_type_detect_controls,
+				   ARRAY_SIZE(hph_type_detect_controls));
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 	snd_soc_add_codec_controls(codec,
 			tasha_analog_gain_controls,
 			ARRAY_SIZE(tasha_analog_gain_controls));
@@ -7051,6 +8168,55 @@ err:
 	return ret;
 }
 
+<<<<<<< HEAD
+=======
+static int tasha_swrm_bulk_write(void *handle, u32 *reg, u32 *val, size_t len)
+{
+	struct tasha_priv *tasha;
+	struct wcd9xxx *wcd9xxx;
+	struct wcd9xxx_reg_val *bulk_reg;
+	unsigned short swr_wr_addr_base;
+	unsigned short swr_wr_data_base;
+	int i, j, ret;
+
+	if (!handle) {
+		pr_err("%s: NULL handle\n", __func__);
+		return -EINVAL;
+	}
+	if (len <= 0) {
+		pr_err("%s: Invalid size: %zu\n", __func__, len);
+		return -EINVAL;
+	}
+	tasha = (struct tasha_priv *)handle;
+	wcd9xxx = tasha->wcd9xxx;
+
+	swr_wr_addr_base = WCD9335_SWR_AHB_BRIDGE_WR_ADDR_0;
+	swr_wr_data_base = WCD9335_SWR_AHB_BRIDGE_WR_DATA_0;
+
+	bulk_reg = kzalloc((2 * len * sizeof(struct wcd9xxx_reg_val)),
+			   GFP_KERNEL);
+	if (!bulk_reg)
+		return -ENOMEM;
+
+	for (i = 0, j = 0; i < (len * 2); i += 2, j++) {
+		bulk_reg[i].reg = swr_wr_data_base;
+		bulk_reg[i].buf = (u8 *)(&val[j]);
+		bulk_reg[i].bytes = 4;
+		bulk_reg[i+1].reg = swr_wr_addr_base;
+		bulk_reg[i+1].buf = (u8 *)(&reg[j]);
+		bulk_reg[i+1].bytes = 4;
+	}
+	mutex_lock(&tasha->swr_write_lock);
+	ret = wcd9xxx_slim_bulk_write(wcd9xxx, bulk_reg, (len * 2), false);
+	if (ret)
+		dev_err(tasha->dev, "%s: swrm bulk write failed, ret: %d\n",
+			__func__, ret);
+	mutex_unlock(&tasha->swr_write_lock);
+	kfree(bulk_reg);
+
+	return ret;
+}
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 static int tasha_swrm_write(void *handle, int reg, int val)
 {
 	struct tasha_priv *tasha;
@@ -7250,6 +8416,7 @@ static int tasha_probe(struct platform_device *pdev)
 	struct clk *wcd_ext_clk;
 	struct wcd9xxx_resmgr_v2 *resmgr;
 
+	printk("%s\n", __func__);
 	tasha = devm_kzalloc(&pdev->dev, sizeof(struct tasha_priv),
 			    GFP_KERNEL);
 	if (!tasha) {
@@ -7294,7 +8461,11 @@ static int tasha_probe(struct platform_device *pdev)
 	tasha->swr_plat_data.handle_irq = tasha_swrm_handle_irq;
 
 	/* Register for Clock */
-	wcd_ext_clk = clk_get(tasha->wcd9xxx->dev, "wcd_clk");
+#if defined(CONFIG_WCD9335_CODEC_MCLK_USE_MSM_GPIO)
+	wcd_ext_clk = clk_get(tasha->wcd9xxx->dev, "wcd_ap_clk");
+#else
+	wcd_ext_clk = clk_get(tasha->wcd9xxx->dev, "wcd_pmi_clk");
+#endif
 	if (IS_ERR(wcd_ext_clk)) {
 		dev_err(tasha->wcd9xxx->dev, "%s: clk get %s failed\n",
 			__func__, "wcd_ext_clk");

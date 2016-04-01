@@ -316,6 +316,15 @@ struct mmc_bkops_info {
 #define BKOPS_SIZE_PERCENTAGE_TO_QUEUE_DELAYED_WORK 1 /* 1% */
 };
 
+<<<<<<< HEAD
+=======
+enum mmc_pon_type {
+	MMC_LONG_PON = 1,
+	MMC_SHRT_PON,
+};
+#define MMC_QUIRK_CMDQ_DELAY_BEFORE_DCMD 6 /* microseconds */
+
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 /*
  * MMC device
  */
@@ -364,6 +373,11 @@ struct mmc_card {
  /* Skip data-timeout advertised by card */
 #define MMC_QUIRK_BROKEN_DATA_TIMEOUT	(1<<13)
 #define MMC_QUIRK_CACHE_DISABLE (1 << 14)       /* prevent cache enable */
+/* Make sure CMDQ is empty before queuing DCMD */
+#define MMC_QUIRK_CMDQ_EMPTY_BEFORE_DCMD (1 << 15)
+
+
+
 
 	unsigned int		erase_size;	/* erase size in sectors */
  	unsigned int		erase_shift;	/* if erase unit is power 2 */

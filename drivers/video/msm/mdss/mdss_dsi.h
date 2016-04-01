@@ -1,4 +1,5 @@
 /* Copyright (c) 2012-2015, The Linux Foundation. All rights reserved.
+ * Copyright (C) 2016 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -410,6 +411,7 @@ struct mdss_dsi_ctrl_pdata {
 	struct dsi_panel_cmds post_dms_on_cmds;
 	struct dsi_panel_cmds off_cmds;
 	struct dsi_panel_cmds status_cmds;
+<<<<<<< HEAD
 	struct dsi_panel_cmds ce_cmds_soft;
 	struct dsi_panel_cmds ce_cmds_off;
 	struct dsi_panel_cmds ce_cmds_std;
@@ -435,6 +437,8 @@ struct mdss_dsi_ctrl_pdata {
 	struct dsi_panel_cmds ce_cabc_cmds13;
 	struct dsi_panel_cmds ce_cabc_cmds14;
 	struct dsi_panel_cmds ce_cabc_cmds15;
+=======
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 
 	u32 status_cmds_rlen;
 	u32 *status_value;
