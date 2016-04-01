@@ -275,6 +275,9 @@ static void wcd_clsh_set_hph_mode(struct snd_soc_codec *codec,
 	case CLS_H_LP:
 		val = 0x04;
 		ipeak = DELTA_I_30MA;
+<<<<<<< HEAD
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
+=======
 >>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 		break;
 	};
@@ -472,9 +475,12 @@ static void wcd_clsh_state_hph_lo(struct snd_soc_codec *codec,
 			wcd_clsh_set_buck_regulator_mode(codec, CLS_AB);
 		else {
 <<<<<<< HEAD
+<<<<<<< HEAD
 			wcd_clsh_set_flyback_mode(codec, mode);
 			wcd_clsh_set_buck_mode(codec, mode);
 =======
+=======
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 			if (!wcd_clsh_enable_status(codec)) {
 				wcd_enable_clsh_block(codec, clsh_d, true);
 				snd_soc_update_bits(codec,
@@ -499,6 +505,9 @@ static void wcd_clsh_state_hph_lo(struct snd_soc_codec *codec,
 				snd_soc_update_bits(codec,
 						WCD9XXX_A_CDC_RX2_RX_PATH_CFG0,
 						0x40, 0x40);
+<<<<<<< HEAD
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
+=======
 >>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 		}
 	} else {
@@ -641,12 +650,18 @@ static void wcd_clsh_state_hph_r(struct snd_soc_codec *codec,
 		}
 		wcd_clsh_set_buck_regulator_mode(codec, mode);
 <<<<<<< HEAD
+<<<<<<< HEAD
 		wcd_clsh_flyback_ctrl(codec, clsh_d, mode, true);
 =======
+=======
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 		wcd_clsh_set_flyback_mode(codec, mode);
 		wcd_clsh_flyback_ctrl(codec, clsh_d, mode, true);
 		wcd_clsh_set_flyback_current(codec, mode);
 		wcd_clsh_set_buck_mode(codec, mode);
+<<<<<<< HEAD
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
+=======
 >>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 		wcd_clsh_buck_ctrl(codec, clsh_d, mode, true);
 		wcd_clsh_set_hph_mode(codec, mode);
@@ -697,12 +712,18 @@ static void wcd_clsh_state_hph_l(struct snd_soc_codec *codec,
 		}
 		wcd_clsh_set_buck_regulator_mode(codec, mode);
 <<<<<<< HEAD
+<<<<<<< HEAD
 		wcd_clsh_flyback_ctrl(codec, clsh_d, mode, true);
 =======
+=======
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 		wcd_clsh_set_flyback_mode(codec, mode);
 		wcd_clsh_flyback_ctrl(codec, clsh_d, mode, true);
 		wcd_clsh_set_flyback_current(codec, mode);
 		wcd_clsh_set_buck_mode(codec, mode);
+<<<<<<< HEAD
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
+=======
 >>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 		wcd_clsh_buck_ctrl(codec, clsh_d, mode, true);
 		wcd_clsh_set_hph_mode(codec, mode);
@@ -874,6 +895,9 @@ int wcd_clsh_get_clsh_state(struct wcd_clsh_cdc_data *clsh)
 	return clsh->state;
 }
 EXPORT_SYMBOL(wcd_clsh_get_clsh_state);
+<<<<<<< HEAD
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
+=======
 >>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 void wcd_clsh_init(struct wcd_clsh_cdc_data *clsh)
 {

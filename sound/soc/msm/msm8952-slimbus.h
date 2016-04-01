@@ -53,5 +53,8 @@ void msm895x_free_auxdev_mem(struct platform_device *pdev);
 void tasha_spk_ext_pa_cb(int (*spk_ext_pa)(struct snd_soc_codec *codec,
 			int enable), struct snd_soc_codec *codec);
 #endif
+<<<<<<< HEAD
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
+=======
 >>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 #endif

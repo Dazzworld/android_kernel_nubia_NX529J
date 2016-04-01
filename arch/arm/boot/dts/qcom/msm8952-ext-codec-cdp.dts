@@ -36,8 +36,11 @@
 	};
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	ext_codec: sound-9330 {
 =======
+=======
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 	wcd_rst_gpio: wcd_gpio_ctrl {
 		compatible = "qcom,wcd-gpio-ctrl";
 		qcom,cdc-rst-n-gpio = <&msm_gpio 68 0>;

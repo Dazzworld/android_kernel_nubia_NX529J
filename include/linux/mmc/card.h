@@ -324,6 +324,9 @@ enum mmc_pon_type {
 };
 #define MMC_QUIRK_CMDQ_DELAY_BEFORE_DCMD 6 /* microseconds */
 
+<<<<<<< HEAD
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
+=======
 >>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 /*
  * MMC device

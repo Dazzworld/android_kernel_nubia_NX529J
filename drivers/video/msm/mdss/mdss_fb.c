@@ -54,6 +54,9 @@
 <<<<<<< HEAD
 =======
 
+<<<<<<< HEAD
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
+=======
 >>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 #include "mdss_dsi.h"
 #include "mdss_fb.h"
@@ -1547,15 +1550,21 @@ static int mdss_fb_blank_unblank(struct msm_fb_data_type *mfd)
 			if (IS_CALIB_MODE_BL(mfd))
 				mdss_fb_set_backlight(mfd, mfd->calib_mode_bl);
 <<<<<<< HEAD
+<<<<<<< HEAD
 			else if (!mfd->panel_info->mipi.post_init_delay)
 				mdss_fb_set_backlight(mfd, mfd->unset_bl_level);
 =======
+=======
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 			else if (!mfd->panel_info->mipi.post_init_delay || cur_panel_dead) {
 				if (esd_backlight) {
 					mdss_fb_set_backlight(mfd, mfd->unset_bl_level);
 					esd_backlight = 0;
 				}
 			}
+<<<<<<< HEAD
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
+=======
 >>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 		}
 		mutex_unlock(&mfd->bl_lock);

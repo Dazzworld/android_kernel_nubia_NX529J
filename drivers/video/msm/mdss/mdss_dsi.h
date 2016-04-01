@@ -412,6 +412,7 @@ struct mdss_dsi_ctrl_pdata {
 	struct dsi_panel_cmds off_cmds;
 	struct dsi_panel_cmds status_cmds;
 <<<<<<< HEAD
+<<<<<<< HEAD
 	struct dsi_panel_cmds ce_cmds_soft;
 	struct dsi_panel_cmds ce_cmds_off;
 	struct dsi_panel_cmds ce_cmds_std;
@@ -437,6 +438,8 @@ struct mdss_dsi_ctrl_pdata {
 	struct dsi_panel_cmds ce_cabc_cmds13;
 	struct dsi_panel_cmds ce_cabc_cmds14;
 	struct dsi_panel_cmds ce_cabc_cmds15;
+=======
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 =======
 >>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 

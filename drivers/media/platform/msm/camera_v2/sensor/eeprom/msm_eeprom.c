@@ -102,6 +102,7 @@ static uint32_t msm_eeprom_match_crc(struct msm_eeprom_memory_block_t *data)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 static int msm_eeprom_get_cmm_data(struct msm_eeprom_ctrl_t *e_ctrl,
 				       struct msm_eeprom_cfg_data *cdata)
 {
@@ -265,6 +266,8 @@ static const struct v4l2_subdev_internal_ops msm_eeprom_internal_ops = {
 	.close = msm_eeprom_close,
 };
 =======
+=======
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 static int ov5670_read_eeprom_memory(struct msm_eeprom_ctrl_t *e_ctrl,
 			      struct msm_eeprom_memory_block_t *block)
 {
@@ -332,6 +335,9 @@ static int ov5670_read_eeprom_memory(struct msm_eeprom_ctrl_t *e_ctrl,
 	return rc;
 
 }
+<<<<<<< HEAD
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
+=======
 >>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 /**
   * read_eeprom_memory() - read map data into buffer

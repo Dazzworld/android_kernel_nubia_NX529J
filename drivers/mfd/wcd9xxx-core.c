@@ -758,12 +758,15 @@ static const struct wcd9xxx_codec_type wcd9xxx_codecs[] = {
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 static void wcd9xxx_bring_up(struct wcd9xxx *wcd9xxx)
 {
 	pr_debug("%s: Codec Type: %d\n", __func__, wcd9xxx->type);
 
 	if (wcd9xxx->type == WCD9335) {
 =======
+=======
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 static int wcd9335_bring_up(struct wcd9xxx *wcd9xxx)
 {
 	int val, byte0;
@@ -821,7 +824,10 @@ static int wcd9335_bring_up(struct wcd9xxx *wcd9xxx)
 				    WCD9335_CODEC_RPM_PWR_CDC_DIG_HM_CTL, 0x3);
 		__wcd9xxx_reg_write(wcd9xxx, WCD9335_CODEC_RPM_RST_CTL, 0x3);
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 	} else {
 		dev_err(wcd9xxx->dev, "%s: tasha codec version unknown\n",
 			__func__);
@@ -845,6 +851,9 @@ static int wcd9xxx_bring_up(struct wcd9xxx *wcd9xxx)
 
 	if (wcd9xxx->type == WCD9335) {
 		ret = wcd9335_bring_up(wcd9xxx);
+<<<<<<< HEAD
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
+=======
 >>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 	} else if (wcd9xxx->type == WCD9330) {
 		__wcd9xxx_reg_write(wcd9xxx, WCD9330_A_LEAKAGE_CTL, 0x4);

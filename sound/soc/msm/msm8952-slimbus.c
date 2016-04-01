@@ -41,6 +41,9 @@
 #if defined(CONFIG_SPEAKER_EXT_PA)
 #include <linux/delay.h>
 #endif
+<<<<<<< HEAD
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
+=======
 >>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 
 #define DRV_NAME "msm8952-slimbus-wcd"
@@ -320,12 +323,18 @@ struct msm8952_asoc_mach_data {
 	u32 mclk_freq;
 	int us_euro_gpio;
 <<<<<<< HEAD
+<<<<<<< HEAD
 	struct mutex cdc_mclk_mutex;
 =======
+=======
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 #if defined(CONFIG_SPEAKER_EXT_PA)
 	int spk_ext_pa_gpio;
 	struct msm8952_pinctrl_info spk_ext_pa_pinctrl_info;
 #endif
+<<<<<<< HEAD
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
+=======
 >>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 	struct delayed_work hs_detect_dwork;
 	struct snd_soc_codec *codec;
@@ -1390,8 +1399,11 @@ static int msm8952_codec_event_cb(struct snd_soc_codec *codec,
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 static int msm_snd_get_ext_clk_cnt(void)
 =======
+=======
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 #if defined(CONFIG_SPEAKER_EXT_PA)
 static int is_ext_spk_gpio_support(struct platform_device *pdev,
 			struct msm8952_asoc_mach_data *pdata)

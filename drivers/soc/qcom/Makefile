@@ -94,4 +94,7 @@ obj-$(CONFIG_MSM_TEST_PACMAN)        += msm_test_pacman.o
 obj-$(CONFIG_TRACER_PKT) += tracer_pkt.o
 obj-$(CONFIG_MSM_VSENS) += vsens.o
 obj-$(CONFIG_SERIAL_NUM) += serial_num.o
+<<<<<<< HEAD
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
+=======
 >>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3

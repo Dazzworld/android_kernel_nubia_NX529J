@@ -3,6 +3,9 @@
 =======
 /* Copyright (c) 2013-2015, The Linux Foundation. All rights reserved.
  * Copyright (C) 2016 XiaoMi, Inc.
+<<<<<<< HEAD
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
+=======
 >>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
  *
  * This program is free software; you can redistribute it and/or modify

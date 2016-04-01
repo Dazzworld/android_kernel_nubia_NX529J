@@ -292,9 +292,12 @@ static int wcd_event_notify(struct notifier_block *self, unsigned long val,
 		}
 		/* Disable current source if micbias enabled */
 <<<<<<< HEAD
+<<<<<<< HEAD
 		wcd_enable_curr_micbias(mbhc, WCD_MBHC_EN_MB);
 		mbhc->is_hs_recording = true;
 =======
+=======
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 		if (!mbhc->mbhc_cb->mbhc_micbias_control) {
 			mbhc->is_hs_recording = true;
 			wcd_enable_curr_micbias(mbhc, WCD_MBHC_EN_MB);
@@ -944,6 +947,9 @@ static void wcd_mbhc_find_plug_and_report(struct wcd_mbhc *mbhc,
 			WCD_MBHC_REG_UPDATE_BITS(WCD_MBHC_BTN_ISRC_CTL, 0);
 			mbhc->mbhc_cb->mbhc_micbias_control(mbhc->codec,
 				MICB_PULLUP_DISABLE);
+<<<<<<< HEAD
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
+=======
 >>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 			/* Setup for insertion detection */
 			snd_soc_update_bits(codec,

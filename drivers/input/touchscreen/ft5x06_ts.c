@@ -33,7 +33,10 @@
 #include <linux/mutex.h>
 #include <linux/input/ft5x06_ts.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 #include <linux/uaccess.h>
 #include "lct_tp_fm_info.h"
 #include "lct_ctp_upgrade.h"
@@ -41,6 +44,9 @@
 #include "lct_ctp_gesture.h"
 #endif
 #include "lct_ctp_selftest.h"
+<<<<<<< HEAD
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
+=======
 >>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 
 #if defined(CONFIG_FB)
@@ -1985,6 +1991,273 @@ static unsigned char ft5x06_fw_LockDownInfo_get_from_boot(struct i2c_client *cli
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	/* verify checksum */
+	w_buf[0] = FT_REG_ECC;
+	ft5x06_i2c_read(client, w_buf, 1, r_buf, 1);
+	if (r_buf[0] != fw_ecc) {
+		dev_err(&client->dev, "ECC error! dev_ecc=%02x fw_ecc=%02x\n",
+					r_buf[0], fw_ecc);
+		return -EIO;
+	}
+
+	/* reset */
+	w_buf[0] = FT_REG_RESET_FW;
+	ft5x06_i2c_write(client, w_buf, 1);
+	msleep(ts_data->pdata->soft_rst_dly);
+
+	dev_info(&client->dev, "Firmware upgrade successful\n");
+
+	return 0;
+}
+
+static int ft5x06_fw_upgrade(struct device *dev, bool force)
+{
+	struct ft5x06_ts_data *data = dev_get_drvdata(dev);
+	const struct firmware *fw = NULL;
+	int rc;
+	u8 fw_file_maj, fw_file_min, fw_file_sub_min, fw_file_vendor_id;
+	bool fw_upgrade = false;
+
+	printk("%s, suspended=%d\n", __func__, data->suspended);
+	if (data->suspended) {
+		dev_err(dev, "Device is in suspend state: Exit FW upgrade\n");
+		return -EBUSY;
+	}
+
+	rc = request_firmware(&fw, data->fw_name, dev);
+	if (rc < 0) {
+		dev_err(dev, "Request firmware failed - %s (%d)\n",
+						data->fw_name, rc);
+		return rc;
+	}
+
+	if (fw->size < FT_FW_MIN_SIZE || fw->size > FT_FW_MAX_SIZE) {
+		dev_err(dev, "Invalid firmware size (%zu)\n", fw->size);
+		rc = -EIO;
+		goto rel_fw;
+	}
+
+	if (data->family_id == FT6X36_ID) {
+		fw_file_maj = FT_FW_FILE_MAJ_VER_FT6X36(fw);
+		fw_file_vendor_id = FT_FW_FILE_VENDOR_ID_FT6X36(fw);
+	} else {
+		fw_file_maj = FT_FW_FILE_MAJ_VER(fw);
+		fw_file_vendor_id = FT_FW_FILE_VENDOR_ID(fw);
+	}
+	fw_file_min = FT_FW_FILE_MIN_VER(fw);
+	fw_file_sub_min = FT_FW_FILE_SUB_MIN_VER(fw);
+
+	dev_info(dev, "Current firmware: %d.%d.%d", data->fw_ver[0],
+				data->fw_ver[1], data->fw_ver[2]);
+	dev_info(dev, "New firmware: %d.%d.%d", fw_file_maj,
+				fw_file_min, fw_file_sub_min);
+
+	if (force)
+		fw_upgrade = true;
+	else if ((data->fw_ver[0] < fw_file_maj) &&
+		data->fw_vendor_id == fw_file_vendor_id)
+		fw_upgrade = true;
+
+	if (!fw_upgrade) {
+		dev_info(dev, "Exiting fw upgrade...\n");
+		rc = -EFAULT;
+		goto rel_fw;
+	}
+
+	/* start firmware upgrade */
+	if (data->family_id == FT5X46_ID) {
+		rc = ft5x46_fw_upgrade_start(data->client, fw->data, fw->size);
+		if (rc < 0)
+			dev_err(dev, "update failed (%d). try later...\n", rc);
+		else if (data->pdata->info.auto_cal)
+			ft5x06_auto_cal(data->client);
+	} else if (FT_FW_CHECK(fw, data)) {
+		rc = ft5x06_fw_upgrade_start(data->client, fw->data, fw->size);
+		if (rc < 0)
+			dev_err(dev, "update failed (%d). try later...\n", rc);
+		else if (data->pdata->info.auto_cal)
+			ft5x06_auto_cal(data->client);
+	} else {
+		dev_err(dev, "FW format error\n");
+		rc = -EIO;
+	}
+
+	ft5x06_update_fw_ver(data);
+
+	FT_STORE_TS_INFO(data->ts_info, data->family_id, data->pdata->name,
+			data->pdata->num_max_touches, data->pdata->group_id,
+			data->pdata->fw_vkey_support ? "yes" : "no",
+			data->pdata->fw_name, data->fw_ver[0],
+			data->fw_ver[1], data->fw_ver[2]);
+rel_fw:
+	release_firmware(fw);
+	printk("%s done\n", __func__);
+	return rc;
+}
+
+static unsigned char ft5x06_fw_Vid_get_from_boot(struct i2c_client *client)
+{
+	unsigned char auc_i2c_write_buf[10];
+	u8 w_buf[FT_MAX_WR_BUF] = {0}, r_buf[FT_MAX_RD_BUF] = {0};
+	unsigned char i = 0;
+	unsigned char vid = 0xFF;
+	int i_ret;
+
+	i_ret = hid_to_i2c(client);
+
+	for (i = 0; i < FT_UPGRADE_LOOP; i++) {
+		msleep(FT_EARSE_DLY_MS);
+
+		/*********Step 1:Reset  CTPM *****/
+		/*write 0xaa to register 0xfc */
+		ft5x0x_write_reg(client, 0xfc, FT_UPGRADE_AA);
+		msleep(2);
+		ft5x0x_write_reg(client, 0xfc, FT_UPGRADE_55);
+
+		msleep(200);
+
+		i_ret = hid_to_i2c(client);
+
+		if (i_ret == 0)
+			printk("[FTS] hid%d change to i2c fail ! \n", i);
+		msleep(10);
+
+		/*********Step 2:Enter upgrade mode *****/
+		w_buf[0] = FT_UPGRADE_55;
+		w_buf[1] = FT_UPGRADE_AA;
+		i_ret = ft5x06_i2c_write(client, w_buf, 2);
+
+		if (i_ret < 0) {
+			printk("[FTS] failed writing  0x55 and 0xaa ! \n");
+			continue;
+		}
+
+		/*********Step 3:check READ-ID***********************/
+		msleep(1);
+		w_buf[0] = FT_READ_ID_REG;
+		w_buf[1] = 0x00;
+		w_buf[2] = 0x00;
+		w_buf[3] = 0x00;
+
+		r_buf[0] = r_buf[1] = 0x00;
+
+		ft5x06_i2c_read(client, w_buf, 4, r_buf, 2);
+
+		if (r_buf[0] == 0x54 && r_buf[1] == 0x2c) {
+			/*
+			printk("Upgrade ID mismatch(%d), IC=0x%x 0x%x, info=0x%x 0x%x\n",
+				i, r_buf[0], r_buf[1],info.upgrade_id_1, info.upgrade_id_2);
+				*/
+			break;
+		} else{
+			printk("[FTS] Step 3: CTPM ID,ID1 = 0x%x,ID2 = 0x%x\n",
+				r_buf[0], r_buf[1]);
+			continue;
+		}
+	}
+
+	if (i >= FT_UPGRADE_LOOP) {
+		dev_err(&client->dev, "Abort upgrade\n");
+		return -EIO;
+	}
+
+	printk("FTS_UPGRADE_LOOP ok is  i = %d \n", i);
+
+	msleep(10);
+	auc_i2c_write_buf[0] = 0x03;
+	auc_i2c_write_buf[1] = 0x00;
+	for (i = 0; i < FT_UPGRADE_LOOP; i++) {
+		auc_i2c_write_buf[2] = 0xd7;
+		auc_i2c_write_buf[3] = 0x83;
+		i_ret = ft5x06_i2c_write(client, auc_i2c_write_buf, 4);
+		if (i_ret < 0) {
+			printk("[FTS] Step 4: read lcm id from flash error when i2c write, i_ret = %d\n", i_ret);
+			continue;
+		}
+		i_ret = ft5x06_i2c_read(client, auc_i2c_write_buf, 0, r_buf, 2);
+		if (i_ret < 0) {
+			printk("[FTS] Step 4: read lcm id from flash error when i2c write, i_ret = %d\n", i_ret);
+			continue;
+		}
+
+		vid = r_buf[1];
+
+		printk("%s: REG VAL ID1 = 0x%x,ID2 = 0x%x\n", __func__, r_buf[0], r_buf[1]);
+		break;
+	}
+
+	printk("%s: reset the tp\n", __func__);
+	auc_i2c_write_buf[0] = 0x07;
+	ft5x06_i2c_write(client, auc_i2c_write_buf, 1);
+	msleep(300);
+	return vid;
+}
+
+static unsigned char ft5x06_fw_LockDownInfo_get_from_boot(struct i2c_client *client, char *pProjectCode)
+{
+	unsigned char auc_i2c_write_buf[10];
+	u8 w_buf[FT_MAX_WR_BUF] = {0}, r_buf[10] = {0};
+	unsigned char i = 0, j = 0;
+
+	int i_ret;
+
+	printk("get_Vid_from_boot, fw_vendor_id=0x%02x\n",  uc_tp_vendor_id);
+	i_ret = hid_to_i2c(client);
+
+	for (i = 0; i < FT_UPGRADE_LOOP; i++) {
+		msleep(FT_EARSE_DLY_MS);
+
+		/*********Step 1:Reset  CTPM *****/
+		/*write 0xaa to register 0xfc */
+		ft5x0x_write_reg(client, 0xfc, FT_UPGRADE_AA);
+		msleep(2);
+		ft5x0x_write_reg(client, 0xfc, FT_UPGRADE_55);
+
+		msleep(200);
+
+		i_ret = hid_to_i2c(client);
+
+		if (i_ret == 0)
+			printk("[FTS] hid%d change to i2c fail ! \n", i);
+		msleep(10);
+
+		/*********Step 2:Enter upgrade mode *****/
+		w_buf[0] = FT_UPGRADE_55;
+		w_buf[1] = FT_UPGRADE_AA;
+		i_ret = ft5x06_i2c_write(client, w_buf, 2);
+
+		if (i_ret < 0) {
+			printk("[FTS] failed writing  0x55 and 0xaa ! \n");
+			continue;
+		}
+
+		/*********Step 3:check READ-ID***********************/
+		msleep(10);
+		w_buf[0] = FT_READ_ID_REG;
+		w_buf[1] = 0x00;
+		w_buf[2] = 0x00;
+		w_buf[3] = 0x00;
+
+		r_buf[0] = r_buf[1] = 0x00;
+
+		ft5x06_i2c_read(client, w_buf, 4, r_buf, 2);
+
+		if (r_buf[0] == 0x54 && r_buf[1] == 0x2c) {
+			/*
+			printk("Upgrade ID mismatch(%d), IC=0x%x 0x%x, info=0x%x 0x%x\n",
+				i, r_buf[0], r_buf[1],info.upgrade_id_1, info.upgrade_id_2);
+				*/
+			break;
+		} else{
+			printk("[FTS] Step 3: CTPM ID,ID1 = 0x%x,ID2 = 0x%x\n",
+				r_buf[0], r_buf[1]);
+			continue;
+		}
+	}
+
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 	if (i >= FT_UPGRADE_LOOP) {
 		dev_err(&client->dev, "Abort upgrade\n");
 		return -EIO;
@@ -2010,6 +2283,7 @@ static unsigned char ft5x06_fw_LockDownInfo_get_from_boot(struct i2c_client *cli
 			printk("[FTS] Step 4: read lcm id from flash error when i2c write, i_ret = %d\n", i_ret);
 			continue;
 		}
+<<<<<<< HEAD
 
 		for (j = 0; j < 8; j++)
 			printk("%s: REG VAL = 0x%02x,j=%d\n", __func__, r_buf[j], j);
@@ -2018,6 +2292,16 @@ static unsigned char ft5x06_fw_LockDownInfo_get_from_boot(struct i2c_client *cli
 		break;
 	}
 
+=======
+
+		for (j = 0; j < 8; j++)
+			printk("%s: REG VAL = 0x%02x,j=%d\n", __func__, r_buf[j], j);
+		sprintf(pProjectCode, "%02x%02x%02x%02x%02x%02x%02x%02x", \
+				r_buf[0], r_buf[1], r_buf[2], r_buf[3], r_buf[4], r_buf[5], r_buf[6], r_buf[7]);
+		break;
+	}
+
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 	printk("%s: reset the tp\n", __func__);
 	auc_i2c_write_buf[0] = 0x07;
 	ft5x06_i2c_write(client, auc_i2c_write_buf, 1);
@@ -2205,6 +2489,10 @@ static DEVICE_ATTR(fw_name, 0664, ft5x06_fw_name_show, ft5x06_fw_name_store);
 =======
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 static ssize_t ft5x06_lockdown_show(struct device *dev,
 				struct device_attribute *attr, char *buf)
 {
@@ -2853,7 +3141,10 @@ static int ft5x06_ts_probe(struct i2c_client *client,
 	int err, len;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 
 #ifdef SUPPORT_READ_TP_VERSION
 	char fw_version[64];
@@ -2867,6 +3158,9 @@ static int ft5x06_ts_probe(struct i2c_client *client,
 	}
 
 
+<<<<<<< HEAD
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
+=======
 >>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 	if (client->dev.of_node) {
 		pdata = devm_kzalloc(&client->dev,
@@ -3187,8 +3481,12 @@ static int ft5x06_ts_probe(struct i2c_client *client,
 		dev_err(&client->dev, "threshold read failed");
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	dev_dbg(&client->dev, "touch threshold = %d\n", reg_value * 4);
 
+=======
+	dev_info(&client->dev, "touch threshold = %d\n", reg_value * 4);
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 =======
 	dev_info(&client->dev, "touch threshold = %d\n", reg_value * 4);
 >>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
@@ -3228,7 +3526,10 @@ static int ft5x06_ts_probe(struct i2c_client *client,
 #endif
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 #if defined(FTS_SCAP_TEST)
 	mutex_init(&data->selftest_lock);
 	lct_ctp_selftest_int(ft5x06_self_test);
@@ -3250,6 +3551,9 @@ static int ft5x06_ts_probe(struct i2c_client *client,
 
 	is_tp_driver_loaded = 1;
 	printk("%s done\n", __func__);
+<<<<<<< HEAD
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
+=======
 >>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 	return 0;
 

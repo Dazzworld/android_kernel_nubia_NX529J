@@ -686,6 +686,9 @@ config SERIAL_NUM
 	  Provide a interface for reading CPU serial number
 
 
+<<<<<<< HEAD
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
+=======
 >>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 source "drivers/soc/qcom/memshare/Kconfig"
 

@@ -1129,6 +1129,9 @@ static void qpnp_flash_led_work(struct work_struct *work)
 =======
 						/ flash_node->max_current);
 			pr_err("led1_torch current_ma = %d,value= %d\n", flash_node->prgm_current, val);
+<<<<<<< HEAD
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
+=======
 >>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 			rc = qpnp_led_masked_write(led->spmi_dev,
 					led->current_addr,
@@ -1149,6 +1152,9 @@ static void qpnp_flash_led_work(struct work_struct *work)
 =======
 						/ flash_node->max_current);
 			pr_err("led2_torch current_ma = %d,value= %d\n", flash_node->prgm_current2, val);
+<<<<<<< HEAD
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
+=======
 >>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 			rc = qpnp_led_masked_write(led->spmi_dev,
 					led->current2_addr,
@@ -1358,6 +1364,9 @@ static void qpnp_flash_led_work(struct work_struct *work)
 			val = (u8)(flash_node->prgm_current *
 				FLASH_MAX_LEVEL / flash_node->max_current);
 			pr_err("led1_flash current_ma = %d,value= %d\n", flash_node->prgm_current, val);
+<<<<<<< HEAD
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
+=======
 >>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 			rc = qpnp_led_masked_write(led->spmi_dev,
 						led->current_addr,
@@ -1376,6 +1385,9 @@ static void qpnp_flash_led_work(struct work_struct *work)
 			val = (u8)(flash_node->prgm_current2 *
 				FLASH_MAX_LEVEL / flash_node->max_current);
 			pr_err("led2_flash current_ma = %d,value= %d\n", flash_node->prgm_current2, val);
+<<<<<<< HEAD
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
+=======
 >>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 			rc = qpnp_led_masked_write(led->spmi_dev,
 						led->current2_addr,
@@ -1685,6 +1697,9 @@ static void qpnp_flash_led_brightness_set(struct led_classdev *led_cdev,
 				prgm_current2 =
 				flash_node->prgm_current;
 		if (value != 100 && value != 0)
+<<<<<<< HEAD
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
+=======
 >>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 			return;
 		} else if (flash_node->id == FLASH_LED_SWITCH) {

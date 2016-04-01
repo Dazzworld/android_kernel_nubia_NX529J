@@ -93,6 +93,7 @@
 		reg = <0x45>;
 		vdd-supply = <&pm8950_l10>;
 		vcc-supply = <&pm8950_l5>;
+<<<<<<< HEAD
 
 		aw2013,red {
 			aw2013,name = "red";
@@ -126,6 +127,41 @@
 		};
 	};
 
+=======
+
+		aw2013,red {
+			aw2013,name = "red";
+			aw2013,id = <0>;
+			aw2013,max-brightness = <255>;
+			aw2013,max-current = <1>;
+			aw2013,rise-time-ms = <2>;
+			aw2013,hold-time-ms = <1>;
+			aw2013,fall-time-ms = <2>;
+			aw2013,off-time-ms = <1>;
+		};
+		aw2013,green {
+			aw2013,name = "green";
+			aw2013,id = <1>;
+			aw2013,max-brightness = <255>;
+			aw2013,max-current = <1>;
+			aw2013,rise-time-ms = <2>;
+			aw2013,hold-time-ms = <1>;
+			aw2013,fall-time-ms = <2>;
+			aw2013,off-time-ms = <1>;
+		};
+		aw2013,blue {
+			aw2013,name = "blue";
+			aw2013,id = <2>;
+			aw2013,max-brightness = <255>;
+			aw2013,max-current = <1>;
+			aw2013,rise-time-ms = <2>;
+			aw2013,hold-time-ms = <1>;
+			aw2013,fall-time-ms = <2>;
+			aw2013,off-time-ms = <1>;
+		};
+	};
+
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 };
 /* Parallel-charger configuration */
 /*
@@ -208,6 +244,23 @@
 		qcom,test-gpios = <&pmi8950_gpios 1 0>;
 		reg-id = "vdd";
 		vdd-supply = <&pm8950_l10>;
+<<<<<<< HEAD
+	};
+
+	fpc_fpc1020 {
+		compatible = "fpc,fpc1020";
+		fpc,reset_gpio = <&msm_gpio 110 0>;
+		fpc,irq_gpio = <&msm_gpio 106 0>;
+		fpc,irq_flags = <0x2001>;
+		fpc,event-type = <4>;
+		fpc,event-code = <4>;
+		vcc_spi-supply = <&pm8950_l6>;
+		vdd_ana-supply = <&pm8950_l6>;
+		vdd_io-supply = <&pm8950_l6>;
+		};
+	};
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
+=======
 	};
 
 	fpc_fpc1020 {

@@ -57,7 +57,11 @@
 			linux,reserve-region;
 			linux,remove-completely;
 <<<<<<< HEAD
+<<<<<<< HEAD
 			reg = <0x0 0x86000000 0x0 0x0800000>;
+=======
+			reg = <0x0 0x86300000 0x0 0x0500000>;
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 =======
 			reg = <0x0 0x86300000 0x0 0x0500000>;
 >>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
@@ -69,7 +73,11 @@
 			linux,reserve-region;
 			linux,remove-completely;
 <<<<<<< HEAD
+<<<<<<< HEAD
 			reg = <0x0 0x86800000 0x0 0x05500000>;
+=======
+			reg = <0x0 0x86c00000 0x0 0x05600000>;
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 =======
 			reg = <0x0 0x86c00000 0x0 0x05600000>;
 >>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
@@ -224,6 +232,14 @@
 			enable-method = "qcom,8976-arm-cortex-acc";
 			qcom,acc = <&acc7>;
 			next-level-cache = <&L2_1>;
+		};
+
+		tzapp_mem: tzapp_region@0 {
+			linux,reserve-contiguous-region;
+			linux,reserve-region;
+			linux,remove-completely;
+			reg = <0 0x8DD00000 0 0x1900000>;
+			label = "tzapp_mem";
 		};
 
 		tzapp_mem: tzapp_region@0 {
@@ -1161,9 +1177,15 @@
 	};
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	qcom_seecom: qseecom@86000000 {
 		compatible = "qcom,qseecom";
 		reg = <0x86000000 0x300000>;
+=======
+	qcom_seecom: qseecom@8dd00000 {
+		compatible = "qcom,qseecom";
+		reg = <0x8dd00000 0x1900000>;
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 =======
 	qcom_seecom: qseecom@8dd00000 {
 		compatible = "qcom,qseecom";

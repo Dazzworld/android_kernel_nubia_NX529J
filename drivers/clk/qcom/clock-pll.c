@@ -780,6 +780,9 @@ int sr_pll_clk_enable(struct clk *c)
 =======
 	u32 lockmask = pll->masks.lock_mask ?: PLL_LOCKED_BIT;
 	u32 status_reg, user_reg, l_reg, m_reg, n_reg, config_reg;
+<<<<<<< HEAD
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
+=======
 >>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 
 	spin_lock_irqsave(&pll_reg_lock, flags);
@@ -790,6 +793,7 @@ int sr_pll_clk_enable(struct clk *c)
 
 	/* A 100us delay required before locking the PLL */
 	mb();
+<<<<<<< HEAD
 <<<<<<< HEAD
 	udelay(10);
 
@@ -804,6 +808,10 @@ int sr_pll_clk_enable(struct clk *c)
 =======
 	udelay(100);
 
+=======
+	udelay(100);
+
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 	time = sched_clock();
 	/* Wait for the PLL to lock */
 	for (count = ENABLE_WAIT_MAX_LOOPS; count > 0; count--) {

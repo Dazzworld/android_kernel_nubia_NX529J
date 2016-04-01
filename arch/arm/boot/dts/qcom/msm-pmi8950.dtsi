@@ -205,6 +205,7 @@
 			#size-cells = <1>;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 			qcom,iterm-ma = <100>;
 			qcom,float-voltage-mv = <4350>;  //ZTEMT modify 4200 --> 4350
 			qcom,resume-delta-mv = <50>;     //ZTEMT modify 200 --> 50
@@ -227,6 +228,26 @@
 			/*ZTEMT Add*/
 			qcom,dcin-vadc = <&pmi8950_vadc>;
 			
+=======
+			qcom,iterm-ma = <150>;
+			qcom,float-voltage-mv = <4400>;
+			qcom,resume-delta-mv = <200>;
+			qcom,chg-inhibit-fg;
+			qcom,rparasitic-uohm = <100000>;
+			qcom,bms-psy-name = "bms";
+			qcom,thermal-mitigation = <2000 1500 700 600 0>;
+			qcom,fastchg-current-comp = <900>;
+			qcom,float-voltage-comp = <11>;
+			/*11 for 4.2V, 16 for 4.1V*/
+
+			qcom,force-aicl-rerun;
+			qcom,aicl-rerun-period-s = <180>;
+			qcom,autoadjust-vfloat;
+			qcom,pmic-revid = <&pmi8950_revid>;
+			qcom,charge-unknown-battery;
+			qcom,board_ntc-vadc = <&pm8950_vadc>;
+			ntc_vdd-supply = <&pm8950_l16>;
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 =======
 			qcom,iterm-ma = <150>;
 			qcom,float-voltage-mv = <4400>;
@@ -344,12 +365,18 @@
 			#address-cells = <1>;
 			#size-cells = <1>;
 <<<<<<< HEAD
+<<<<<<< HEAD
 			qcom,resume-soc = <99>; //ZTEMT modify 95 --> 99
 =======
+=======
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 			qcom,resume-soc = <99>;
 			qcom,resume-soc-raw = <254>;
 			qcom,fg-delta-soc = <1>;
 			qcom,vbat-estimate-diff-mv = <100>;
+<<<<<<< HEAD
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
+=======
 >>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 			status = "okay";
 			qcom,bcl-lm-threshold-ma = <127>;
@@ -359,6 +386,7 @@
 			qcom,pmic-revid = <&pmi8950_revid>;
 			qcom,cycle-counter-en;
 			qcom,capacity-learning-on;
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 			//ZTEMT modify && add,  !!Note!!:  these values will replace : struct fg_mem_setting settings in qpnp-fg.c
@@ -380,6 +408,8 @@
 			//ZTEMT end
 
 =======
+=======
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 			qcom,fg-cutoff-voltage-mv = <3400>;
 			qcom,cold-bat-decidegc = <0>;
 			qcom,cool-bat-decidegc = <100>;
@@ -387,6 +417,9 @@
 			qcom,hot-bat-decidegc = <540>;
 			qcom,cold-hot-jeita-hysteresis = <0 10>;/*60->58 recharge*/
 			qcom,thermal-coefficients = [67 85 FC 4A E0 3D];
+<<<<<<< HEAD
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
+=======
 >>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 			qcom,fg-soc@4000 {
 			status = "okay";
@@ -670,7 +703,11 @@
 
 			pmi8950_switch0: qcom,switch_0{
 				label = "switch";
+<<<<<<< HEAD
 				qcom,led-name = "led:switch_0";
+=======
+				qcom,led-name = "flashlight";
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 				qcom,default-led-trigger =
 						"switch0_trigger";
 				qcom,max-current = <1000>;
@@ -678,6 +715,7 @@
 				qcom,id = <2>;
 				qcom,current = <625>;
 			};
+<<<<<<< HEAD
 			pmi8950_switch1: qcom,switch_1{
 				label = "switch";
 <<<<<<< HEAD
@@ -692,6 +730,8 @@
 				qcom,id = <2>;
 				qcom,current = <625>;
 			};
+=======
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 
 		};
 

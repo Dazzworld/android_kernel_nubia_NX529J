@@ -1950,6 +1950,7 @@ static void mdss_dsi_set_prim_panel(struct mdss_dsi_ctrl_pdata *ctrl_pdata)
 	}
 }
 #ifdef WRITE_REGISTER
+<<<<<<< HEAD
 
 static ssize_t r_lcd_write_register(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t size)
@@ -2028,6 +2029,86 @@ static int msm_lcd_name_create_sysfs(void)
 		return ret ;
 	}
 
+=======
+
+static ssize_t r_lcd_write_register(struct device *dev,
+		struct device_attribute *attr, const char *buf, size_t size)
+{
+	unsigned long reg;
+	unsigned long cmd;
+	unsigned long data;
+	ssize_t ret = -EINVAL;
+
+	ret = kstrtoul(buf, 16, &reg);
+	if (ret)
+		return ret;
+	cmd = (reg&0xff00) >> 8;
+	data = reg&0x00ff;
+	printk("tsx_cmd=%ld,data=%ld,reg=%ld\n", cmd, data, reg);
+	mdss_dsi_write_reg_dcs(w_reg, cmd, data);
+
+	return size;
+}
+static DEVICE_ATTR(lcd_register, 0644, NULL, r_lcd_write_register);
+
+
+static struct kobject *msm_lcd_write_reg;
+
+static int msm_lcd_write_reg_create_sysfs(void)
+{
+	int ret ;
+
+	msm_lcd_write_reg = kobject_create_and_add("android_write_lcd", NULL);
+	if (msm_lcd_write_reg == NULL) {
+		pr_info("msm_lcd_name_create_sysfs	failed!\n");
+		ret = -ENOMEM;
+		return ret ;
+	}
+
+	ret = sysfs_create_file(msm_lcd_write_reg, &dev_attr_lcd_register.attr);
+	if (ret) {
+		pr_info("%s failed\n", __func__);
+		kobject_del(msm_lcd_write_reg);
+	}
+	return 0 ;
+}
+
+#endif
+#ifdef LCM_SUPPORT_READ_VERSION
+static int mdss_panel_parse_panel_name(struct device_node *node)
+{
+	const char *name;
+
+	name = of_get_property(node,
+				"qcom,mdss-dsi-panel-name", NULL);
+	strcpy(g_lcm_id, name);
+	return 0;
+}
+static ssize_t msm_fb_lcd_name(struct device *dev,
+				  struct device_attribute *attr, char *buf)
+{
+	ssize_t ret = 0;
+
+	sprintf(buf, "%s\n", g_lcm_id);
+	ret = strlen(buf) + 1;
+
+	return ret;
+}
+
+static DEVICE_ATTR(lcd_name, 0644, msm_fb_lcd_name, NULL);
+static struct kobject *msm_lcd_name;
+static int msm_lcd_name_create_sysfs(void)
+{
+	int ret ;
+
+	msm_lcd_name = kobject_create_and_add("android_lcd", NULL);
+	if (msm_lcd_name == NULL) {
+		pr_info("msm_lcd_name_create_sysfs	failed!\n");
+		ret = -ENOMEM;
+		return ret ;
+	}
+
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 	ret = sysfs_create_file(msm_lcd_name, &dev_attr_lcd_name.attr);
 	if (ret) {
 		pr_info("%s failed\n", __func__);
@@ -2036,6 +2117,9 @@ static int msm_lcd_name_create_sysfs(void)
 	return 0 ;
 }
 #endif
+<<<<<<< HEAD
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
+=======
 >>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 int mdss_dsi_panel_init(struct device_node *node,
 	struct mdss_dsi_ctrl_pdata *ctrl_pdata,
@@ -2090,18 +2174,24 @@ int mdss_dsi_panel_init(struct device_node *node,
 	ctrl_pdata->panel_data.set_backlight = mdss_dsi_panel_bl_ctrl;
 	ctrl_pdata->switch_mode = mdss_dsi_panel_switch_mode;
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 #ifdef CONFIG_ZTEMT_LCD_DISP_PREFERENCE
 	ztemt_set_dsi_ctrl(ctrl_pdata);
 #endif
 
 =======
+=======
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 #ifdef LCM_SUPPORT_READ_VERSION
 	msm_lcd_name_create_sysfs();
 #endif
 #ifdef WRITE_REGISTER
 	msm_lcd_write_reg_create_sysfs();
 #endif
+<<<<<<< HEAD
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
+=======
 >>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 	return 0;
 }

@@ -42,6 +42,24 @@ struct pinctrl_info {
 };
 #endif
 
+#if defined(CONFIG_WCD9335_CODEC_MCLK_USE_MSM_GPIO)
+#include <sound/q6afe-v2.h>
+#include <linux/io.h>
+
+#define LPASS_CSR_GP_IO_MUX_MIC_CTL 0x07702000
+#define LPASS_CSR_GP_IO_MUX_SPKR_CTL 0x07702004
+
+enum ap_clk_mux {
+	AP_CLK1 = 1,
+	AP_CLK2,
+};
+struct pinctrl_info {
+	struct pinctrl *pinctrl;
+	struct pinctrl_state *sleep;
+	struct pinctrl_state *active;
+};
+#endif
+
 struct audio_ext_ap_clk {
 	bool enabled;
 	int gpio;

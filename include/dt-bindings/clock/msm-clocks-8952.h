@@ -310,6 +310,9 @@
 #define clk_audio_ap_clk 0x312ac429
 #define clk_audio_pmi_clk 0xb7ba2274
 #define clk_audio_ap_clk1			0x322ac429
+<<<<<<< HEAD
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
+=======
 >>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 
 #endif

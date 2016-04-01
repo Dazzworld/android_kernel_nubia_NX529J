@@ -92,6 +92,7 @@ static void msm_actuator_parse_i2c_params(struct msm_actuator_ctrl_t *a_ctrl,
 	struct msm_camera_i2c_reg_array *i2c_tbl = a_ctrl->i2c_reg_tbl;
 	CDBG("Enter\n");
 <<<<<<< HEAD
+<<<<<<< HEAD
     //ZTEMT yuanl start add 20151217 此马达是两个寄存器
     if(strncmp(a_ctrl->act_name,"ak7371",strlen("ak7371"))==0 && size==2)
     {
@@ -110,10 +111,15 @@ static void msm_actuator_parse_i2c_params(struct msm_actuator_ctrl_t *a_ctrl,
     }
     //ZTEMT yuanl end
 =======
+=======
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 	if (i2c_tbl == NULL) {
 		pr_err("msm_actuator_parse_i2c_params i2c tab is null \n");
 		return;
 	}
+<<<<<<< HEAD
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
+=======
 >>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 	for (i = 0; i < size; i++) {
 		/* check that the index into i2c_tbl cannot grow larger that

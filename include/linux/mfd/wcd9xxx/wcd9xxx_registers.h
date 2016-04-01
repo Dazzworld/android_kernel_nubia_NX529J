@@ -338,5 +338,8 @@
 #define WCD9XXX_HPH_REFBUFF_UHQA_CTL			(0x6DD)
 #define WCD9XXX_CLASSH_CTRL_VCL_2                       (0x69B)
 #define WCD9XXX_CLASSH_CTRL_CCL_1                       (0x69C)
+<<<<<<< HEAD
+>>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
+=======
 >>>>>>> e6cbd46... Xiaomi kernel changes for HM Note3
 #endif
